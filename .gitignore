@@ -1,0 +1,126 @@
+# ── Python bytecode / caches ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# ── Test & lint caches ────────────────────────────────────────────────────────
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.coveralls.json
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env.bak/
+venv.bak/
+
+# ── Distribution / packaging ──────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.eggs/
+*.whl
+*.tar.gz
+*.zip
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+*.env
+.secrets
+*.pem
+*.key
+
+# ── Data layer — large / generated artefacts ──────────────────────────────────
+# Bronze (raw downloads) — large, rebuilt by ingestion step
+data/bronze/
+# Silver (parsed / cleaned) — large, rebuilt by parsing step
+data/silver/
+# Gold (final analytics tables) — rebuilt by pipeline, keep sentinel only
+data/gold/
+!data/gold/.gitkeep
+
+# Parquet files everywhere except sample data
+*.parquet
+!data/sample/**/*.parquet
+!data/sample/*.parquet
+
+# ── Sample data IS committed — do NOT ignore it ───────────────────────────────
+# (data/sample/ is intentionally NOT listed above)
+
+# ── Overrides are small CSVs — committed ─────────────────────────────────────
+# (data/overrides/ is intentionally NOT ignored)
+
+# ── Web deploy artefacts ──────────────────────────────────────────────────────
+web/data/
+
+# ── Jupyter / IPython ─────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# ── Linux / Windows system files ─────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ── IDEs & editors ────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+
+# ── Model / embedding caches ─────────────────────────────────────────────────
+.cache/
+models/
+*.onnx
+*.bin
+*.pt
+*.safetensors
+!src/driftlens/nlp/model_card.md
+
+# ── Logs & profiling ─────────────────────────────────────────────────────────
+*.log
+*.prof
+*.lprof
+*.stats
+
+# ── Temporary files ───────────────────────────────────────────────────────────
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+tmp/
+temp/

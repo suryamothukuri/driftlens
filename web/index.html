@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DriftLens — Document Semantic Drift Detection</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo-box" onclick="switchView('landing')">
+        <div class="logo-icon">🔍</div>
+        <span>DriftLens</span>
+      </a>
+      <ul class="nav-links">
+        <li><a class="nav-link active" data-view="landing">Overview</a></li>
+        <li><a class="nav-link" data-view="global">What Changed</a></li>
+        <li><a class="nav-link" data-view="timeline">Company Timeline</a></li>
+        <li><a class="nav-link" data-view="sql">SQL Sandbox</a></li>
+        <li><a class="nav-link" href="https://github.com/suryamothukuri/driftlens" target="_blank">GitHub ↗</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="main-wrapper">
+
+    <!-- VIEW 1: LANDING -->
+    <div id="view-landing" class="view-section active">
+      <section class="hero-section">
+        <h1 class="hero-title">
+          Detect when documents <br />
+          <span class="hero-highlight">change meaning over time</span>
+        </h1>
+        <p class="hero-subtitle">
+          A general-purpose semantic drift engine for versioned document corpora.
+          Tracking cluster trajectory, centroid drift, and evidence-grounded materiality shifts.
+        </p>
+        <div class="hero-cta-group">
+          <button class="btn btn-primary" onclick="switchView('global')">Explore Top Drift Events</button>
+          <button class="btn btn-secondary" onclick="switchView('sql')">Launch SQL Sandbox</button>
+        </div>
+      </section>
+
+      <div class="stats-grid">
+        <div class="glass-panel stat-card">
+          <div class="stat-num">500+</div>
+          <div class="stat-label">Document Versions Analyzed</div>
+        </div>
+        <div class="glass-panel stat-card">
+          <div class="stat-num">30</div>
+          <div class="stat-label">Corpus Entities</div>
+        </div>
+        <div class="glass-panel stat-card">
+          <div class="stat-num">$0.00</div>
+          <div class="stat-label">Monthly Runtime Cost</div>
+        </div>
+        <div class="glass-panel stat-card">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Client-Side Wasm Analytics</div>
+        </div>
+      </div>
+
+      <div class="how-it-works">
+        <h2 class="section-heading">⚡ How Semantic Drift Works</h2>
+        <div class="steps-grid">
+          <div class="glass-panel step-card">
+            <div class="step-num">1</div>
+            <h4>Ingest & Localize</h4>
+            <p>Pull raw versioned document layers (Item 1A risk disclosures) with strict rate control and immutable Bronze checkpoints.</p>
+          </div>
+          <div class="glass-panel step-card">
+            <div class="step-num">2</div>
+            <h4>Embed & Discover</h4>
+            <p>Sentence embeddings via local <code>BAAI/bge-small-en-v1.5</code>, followed by UMAP projection and global HDBSCAN theme discovery.</p>
+          </div>
+          <div class="glass-panel step-card">
+            <div class="step-num">3</div>
+            <h4>Centroid Drift</h4>
+            <p>Compute year-over-year cosine divergence between theme embeddings to isolate semantic phrasing shifts from raw word-count diffs.</p>
+          </div>
+          <div class="glass-panel step-card">
+            <div class="step-num">4</div>
+            <h4>Evidence Grounding</h4>
+            <p>Synthesize concise explanations strictly citing extracted source excerpts — zero hallucinations or speculative invention.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: GLOBAL TABLE -->
+    <div id="view-global" class="view-section">
+      <div style="margin-bottom: 2rem;">
+        <h2 class="section-heading">📈 Top Disclosed Drift Events</h2>
+        <p style="color:var(--text-secondary);">Ranked by Materiality Score: <code>abs(Δ Intensity) × log(1 + chunk_count)</code>. Click any row for primary source evidence.</p>
+      </div>
+      <div class="table-container glass-panel">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Theme Cluster</th>
+              <th>Year</th>
+              <th>Classification</th>
+              <th>Δ Intensity</th>
+              <th>Centroid Drift</th>
+              <th>Materiality</th>
+            </tr>
+          </thead>
+          <tbody id="global-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VIEW 3: TIMELINE -->
+    <div id="view-timeline" class="view-section">
+      <div class="controls-bar">
+        <div>
+          <h2 class="section-heading" id="timeline-company-name">Company Temporal Trajectory</h2>
+          <p style="color:var(--text-secondary);">Year-over-year progression of top disclosed disclosure themes.</p>
+        </div>
+        <select id="company-selector" class="select-input"></select>
+      </div>
+      <div class="timeline-track" id="timeline-track"></div>
+    </div>
+
+    <!-- VIEW 4: SQL SANDBOX -->
+    <div id="view-sql" class="view-section">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 class="section-heading">⚡ In-Browser DuckDB-Wasm Sandbox</h2>
+        <p style="color:var(--text-secondary);">Execute real SQL queries directly on analytical Parquet files in your browser. Zero backend, zero server latency.</p>
+      </div>
+      <div class="glass-panel sql-sandbox">
+        <textarea id="sql-input" class="sql-textarea">SELECT 
+  t.label as theme_cluster,
+  tc.fiscal_year,
+  COUNT(DISTINCT tc.cik) as affected_entities,
+  ROUND(AVG(tc.materiality_score), 4) as avg_materiality
+FROM theme_changes tc
+JOIN themes t ON tc.cluster_id = t.cluster_id
+WHERE tc.change_type = 'new'
+GROUP BY t.label, tc.fiscal_year
+ORDER BY avg_materiality DESC
+LIMIT 10;</textarea>
+        <button id="btn-run-sql" class="btn btn-primary">Run Query (DuckDB-Wasm)</button>
+        <div id="sql-results" style="margin-top: 1.5rem;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal for Evidence Drilldown -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title" style="color:#fff;">Evidence Drilldown</h3>
+        <button id="modal-close-btn" class="btn-close">&times;</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/duckdb-wasm-init.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+name: DriftLens Pipeline
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run on the 1st of every month at 2:00 AM UTC
+    - cron: '0 2 1 * *'
+
+env:
+  DRIFTLENS_EMAIL: suryatejam2312@gmail.com
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cache Ollama model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-qwen2.5-7b-instruct-v1
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.ai/install.sh | sh
+
+      - name: Start Ollama service
+        run: ollama serve &
+
+      - name: Pull Ollama model
+        run: |
+          # Wait for Ollama to be ready before pulling
+          echo "Waiting for Ollama service to be ready..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+              echo "Ollama is ready."
+              break
+            fi
+            echo "  attempt $i/30 — sleeping 2s..."
+            sleep 2
+          done
+          ollama pull qwen2.5:7b-instruct
+
+      - name: Run DriftLens pipeline
+        run: python -m driftlens.pipeline run --scale medium
+
+      - name: Commit updated gold data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add data/gold/*.parquet
+          git diff --staged --quiet || git commit -m 'chore: refresh gold data [skip ci]'
+          git push
+
+      - name: Trigger deploy-pages workflow
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy-pages.yml/dispatches \
+            -d '{"ref":"main"}'

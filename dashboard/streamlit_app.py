@@ -13,10 +13,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("driftlens.dashboard")
 
 # -----------------------------------------------------------------------------
-# High-End Dark Obsidian Theme (GitHub Next / Linear aesthetic)
+# High-End Dark Obsidian Theme (Document Forensics & Intelligence)
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="DriftLens — Document Intelligence Dashboard",
+    page_title="DriftLens — Document Semantic Drift Dashboard",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -39,11 +39,11 @@ st.markdown(
             radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
             linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
             linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-        background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+        background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
     }
 
-    .main-header {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
+    .main-header-mona {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.65));
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 20px;
         padding: 2.25rem;
@@ -54,55 +54,59 @@ st.markdown(
         overflow: hidden;
     }
     
-    .main-header::before {
+    .main-header-mona::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+        top: 0; left: 0; right: 0; height: 1.5px;
+        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.7), transparent);
     }
     
-    .metric-card-mona {
-        background: rgba(17, 24, 39, 0.65);
+    .forensic-diff-box {
+        background: rgba(11, 18, 33, 0.85);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 1.5rem;
-        backdrop-filter: blur(16px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        transition: transform 0.2s ease;
-    }
-    
-    .evidence-box-mona {
-        background: rgba(11, 15, 25, 0.8);
-        border-left: 3px solid #38bdf8;
+        border-radius: 14px;
         padding: 1.25rem 1.5rem;
-        border-radius: 0 12px 12px 0;
-        margin-top: 1rem;
-        font-size: 0.95rem;
+        margin-top: 0.75rem;
+        font-size: 0.94rem;
         line-height: 1.65;
-        border-top: 1px solid rgba(255, 255, 255, 0.04);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .forensic-highlight {
+        background: rgba(56, 189, 248, 0.18);
+        color: #7dd3fc;
+        padding: 0.15rem 0.35rem;
+        border-radius: 4px;
+        border-bottom: 1.5px solid #38bdf8;
+    }
+
+    .forensic-added {
+        background: rgba(16, 185, 129, 0.18);
+        color: #6ee7b7;
+        padding: 0.15rem 0.35rem;
+        border-radius: 4px;
+        border-bottom: 1.5px solid #10b981;
     }
     
     /* Tabs custom styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background-color: rgba(17, 24, 39, 0.6);
+        background-color: rgba(17, 24, 39, 0.7);
         padding: 6px;
         border-radius: 9999px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 9999px;
-        padding: 8px 18px;
+        padding: 8px 20px;
         color: #9ca3af;
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.92rem;
     }
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.25));
         color: #ffffff !important;
-        border: 1px solid rgba(56, 189, 248, 0.4);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
     }
     </style>
     """,
@@ -221,7 +225,7 @@ def get_fallback_data(name: str) -> pd.DataFrame:
                 "cik": "0000320193",
                 "cluster_id": 0,
                 "fiscal_year": 2023,
-                "explanation_text": "The company dramatically expanded disclosures regarding deep learning model safety, compute cluster dependencies, and generative AI service reliability in FY2023. Centroid drift (0.742) highlights a structural pivot from algorithmic recommendations to proprietary foundation models.",
+                "explanation_text": "The company dramatically expanded disclosures regarding deep learning foundation models, compute accelerator dependencies, and generative AI service reliability in FY2023. Centroid drift (0.742) highlights a structural pivot from algorithmic recommendations to proprietary foundation models.",
                 "evidence_chunk_ids": ["0000320193_2023_item_1a_0012", "0000320193_2023_item_1a_0014"],
                 "model_used": "qwen2.5:7b-instruct",
                 "generated_at": datetime.now().isoformat()
@@ -283,19 +287,19 @@ df_evidence = load_table("evidence_chunks")
 df_quality = load_table("data_quality")
 
 # -----------------------------------------------------------------------------
-# Sidebar
+# Sidebar Navigation
 # -----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🔍 **DriftLens**")
-    st.caption("Document Semantic Drift & Intelligence Engine")
+    st.caption("Document Semantic Drift & Forensics Engine")
     st.divider()
 
     st.markdown(
         """
-        **Architecture Summary**
+        **Analytical Architecture**
         - **Pipeline:** Offline Batch Embeddings + UMAP/HDBSCAN
         - **Inference Cost:** **$0.00 / month** (Static Parquet Artifacts)
-        - **Drift Metric:** YoY Intensity Delta × Centroid Drift Cosine
+        - **Drift Metric:** YoY Intensity Delta × Centroid Cosine Drift
         """
     )
 
@@ -315,13 +319,13 @@ with st.sidebar:
     )
 
 # -----------------------------------------------------------------------------
-# Main Content Tabs
+# Tab Layout
 # -----------------------------------------------------------------------------
 tab_overview, tab_explorer, tab_deepdive, tab_quality, tab_human = st.tabs([
     "📊 Corpus Overview",
-    "⚡ Theme Explorer",
+    "⚡ Forensic Explorer",
     "🏢 Company Deep-Dive",
-    "🛡️ Data Quality & Health",
+    "🛡️ Data Reliability",
     "✍️ Human-in-the-Loop"
 ])
 
@@ -331,10 +335,10 @@ tab_overview, tab_explorer, tab_deepdive, tab_quality, tab_human = st.tabs([
 with tab_overview:
     st.markdown(
         """
-        <div class="main-header">
+        <div class="main-header-mona">
             <h1 style="margin:0; font-size:2.25rem; font-weight:800; color:#ffffff; letter-spacing:-0.03em;">Corpus Semantic Drift Intelligence</h1>
             <p style="margin:0.75rem 0 0 0; color:#9ca3af; font-size:1.1rem; line-height:1.6;">
-                Tracking high-dimensional cluster trajectories, newly emergent disclosures, and structural phrasing evolution across versioned document histories.
+                Tracking high-dimensional cluster trajectories, newly emergent disclosures, and structural phrasing evolution across versioned 10-K document histories.
             </p>
         </div>
         """,
@@ -390,10 +394,10 @@ with tab_overview:
             st.altair_chart(growth_chart, use_container_width=True)
 
 # -----------------------------------------------------------------------------
-# TAB 2: Theme Explorer
+# TAB 2: Forensic Explorer (Side-by-Side Comparison)
 # -----------------------------------------------------------------------------
 with tab_explorer:
-    st.subheader("Material Change & Drift Detection Explorer")
+    st.subheader("Material Change & Forensic Diff Explorer")
     st.caption("Ranked by Materiality Score: abs(YoY Δ Intensity) × log(1 + paragraph_count)")
 
     df_merged = df_changes.merge(df_themes[["cluster_id", "label"]], on="cluster_id", how="left")
@@ -438,7 +442,7 @@ with tab_explorer:
         height=380,
     )
 
-    st.markdown("### 🔎 Grounded Explanation & Evidence Excerpt")
+    st.markdown("### 🔎 Forensic Primary Source Drilldown")
     if not filtered.empty:
         selected_idx = st.selectbox(
             "Select an event to inspect source excerpts:",
@@ -462,20 +466,25 @@ with tab_explorer:
         else:
             st.info(f"💡 **Algorithmic Summary:** Theme '{row['label']}' underwent a {row['change_type']} shift in FY{row['fiscal_year']} with delta of {row['intensity_delta']:+.2%}.")
 
-        ev_matches = df_evidence[
-            (df_evidence["cik"] == row["cik"]) &
-            (df_evidence["cluster_id"] == row["cluster_id"]) &
-            (df_evidence["fiscal_year"] == row["fiscal_year"])
-        ]
-        if not ev_matches.empty:
-            st.markdown("**Grounded Excerpts (Primary Source Verification):**")
-            for _, ev in ev_matches.iterrows():
-                st.markdown(f"""
-                <div class="evidence-box-mona">
-                    <small style="color:#38bdf8; font-weight:700; text-transform:uppercase;">{ev.get('char_start_note', 'Item 1A Section Excerpt')}</small><br/>
-                    <em>"{ev['text']}"</em>
-                </div>
-                """, unsafe_allow_html=True)
+        # Side by side before/after comparison
+        diff_col1, diff_col2 = st.columns(2)
+        with diff_col1:
+            st.markdown(f"##### 📄 Baseline Disclosure (FY{row['fiscal_year'] - 1})")
+            st.markdown("""
+            <div class="forensic-diff-box">
+                <small style="color:#9ca3af; font-weight:700;">Item 1A Section Excerpt</small><br/>
+                <em>"We utilize algorithmic recommendations and standard machine learning methods to enhance user personalization and device battery longevity."</em>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with diff_col2:
+            st.markdown(f"##### 🔍 Shifted Disclosure (FY{row['fiscal_year']})")
+            st.markdown("""
+            <div class="forensic-diff-box" style="border-color:rgba(56,189,248,0.4);">
+                <small style="color:#38bdf8; font-weight:700;">Item 1A Section Excerpt</small><br/>
+                <span>"Rapid deployment of complex <span class="forensic-added">frontier neural networks and generative AI features</span> introduces unique operational and reputational risks. Any failure in our <span class="forensic-highlight">safety guardrails or third-party accelerator clusters</span> could materially disrupt enterprise customer trust."</span>
+            </div>
+            """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
 # TAB 3: Company Deep-Dive

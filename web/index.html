@@ -3,13 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DriftLens — Document Semantic Drift Engine</title>
+  <title>DriftLens — Document Semantic Drift & Intelligence Engine</title>
   <link rel="stylesheet" href="assets/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-  <div class="aurora-glow"></div>
+  <div class="aurora-ambient"></div>
+
+  <!-- Signature DriftLens AI Analyst Bot -->
+  <div class="drift-bot-container" id="drift-bot">
+    <div class="drift-bot-bubble" id="drift-bot-text">
+      <strong>DriftBot AI:</strong> Ready to analyze document disclosures & semantic shifts.
+    </div>
+    <div class="drift-bot-avatar" id="drift-bot-avatar" title="DriftLens Forensic Assistant">
+      <div class="drift-bot-eye" id="drift-bot-eye"></div>
+      <div class="drift-bot-scan-beam" id="drift-bot-beam"></div>
+    </div>
+  </div>
 
   <!-- Navbar -->
   <header class="navbar">
@@ -30,20 +41,21 @@
 
   <div class="main-wrapper">
 
-    <!-- VIEW 1: LANDING -->
+    <!-- VIEW 1: LANDING OVERVIEW -->
     <div id="view-landing" class="view-section active">
       <section class="hero-section">
+        <canvas id="hero-bg-canvas" class="hero-backdrop-canvas"></canvas>
         <div class="hero-badge">
           <span class="pulse-dot"></span>
-          <span>Applied NLP & Document Intelligence</span>
+          <span>Applied Document Forensics & Semantic Trajectories</span>
         </div>
         <h1 class="hero-title">
           Detect when documents <br />
           <span class="gradient-text">change meaning over time</span>
         </h1>
         <p class="hero-subtitle">
-          A general-purpose semantic drift detection engine for large versioned corpora.
-          Tracking high-dimensional cluster trajectories, centroid drift, and evidence-grounded materiality shifts.
+          A general-purpose semantic drift detection engine for large versioned document corpora.
+          Tracking high-dimensional cluster trajectories, centroid drift, and evidence-grounded materiality shifts across corporate 10-K disclosures.
         </p>
         <div class="hero-cta-group">
           <button class="btn btn-primary" onclick="switchView('global')">Explore Top Drift Events →</button>
@@ -51,23 +63,34 @@
         </div>
       </section>
 
-      <!-- Interactive 2D Drift Particle Visualizer -->
+      <!-- Latent Space Trajectory Visualizer -->
       <div class="mona-card interactive-showcase">
         <div class="showcase-header">
           <div>
             <h3 class="showcase-title">Interactive Latent Space Trajectory</h3>
-            <p style="color:var(--text-secondary); font-size:0.9rem;">Real-time UMAP projection showing semantic cluster drift across fiscal disclosure years.</p>
+            <p style="color:var(--text-secondary); font-size:0.92rem;">
+              Real-time UMAP projection of sentence embeddings across fiscal disclosure years. Drag the slider to observe semantic cluster migration.
+            </p>
           </div>
           <div class="scrubber-box">
-            <span style="font-size:0.85rem; font-weight:600; color:var(--neon-sky);">Temporal Scrub:</span>
+            <span style="font-size:0.85rem; font-weight:700; color:var(--neon-sky);">Temporal Scrub:</span>
             <input type="range" id="trajectory-slider" class="year-slider" min="2019" max="2023" value="2023" step="1">
             <span id="slider-year-label" style="font-family:var(--font-mono); font-weight:700; color:#fff; min-width:40px;">2023</span>
           </div>
         </div>
+        
         <canvas id="drift-canvas"></canvas>
+
+        <div class="canvas-legend-row">
+          <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> AI Infrastructure & Model Safety</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Global Semiconductor Foundries</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div> Cloud Data Privacy & Zero Trust</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Cross-Border Export Controls</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f43f5e;"></div> Workforce & Supply Chain Disruption</div>
+        </div>
       </div>
 
-      <!-- Stats Grid -->
+      <!-- Verified Corpus Metrics Grid -->
       <div class="stats-grid">
         <div class="mona-card stat-card">
           <div class="stat-num">500+</div>
@@ -87,37 +110,86 @@
         </div>
       </div>
 
-      <!-- Pipeline Steps -->
-      <div class="steps-grid">
-        <div class="mona-card step-card">
-          <div class="step-icon-box">01</div>
-          <h4>Ingest & Localize</h4>
-          <p>Rate-limited retrieval with immutable Bronze checkpoints and automated Item 1A boundary regex localization.</p>
+      <!-- Reimagined Document Forensics Processing Pipeline -->
+      <div class="pipeline-flow-container">
+        <div style="margin-bottom: 1.5rem;">
+          <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Forensic Architecture Pipeline</h2>
+          <p style="color:var(--text-secondary);">Interactive view of our modular document-to-drift analysis pipeline. Click any stage for engineering details.</p>
         </div>
-        <div class="mona-card step-card">
-          <div class="step-icon-box">02</div>
-          <h4>Embed & Cluster</h4>
-          <p>Local <code>bge-small-en-v1.5</code> vector representations projected through UMAP into global HDBSCAN theme manifolds.</p>
+
+        <div class="pipeline-stages-grid">
+          <div class="pipeline-stage-card active" data-stage="0">
+            <div class="stage-step-badge">STAGE 01</div>
+            <div class="stage-title">SEC EDGAR Ingestion</div>
+            <div class="stage-desc">Rate-limited (8 req/s) retrieval with immutable Bronze checkpoints & .meta.json sidecars.</div>
+          </div>
+          <div class="pipeline-stage-card" data-stage="1">
+            <div class="stage-step-badge">STAGE 02</div>
+            <div class="stage-title">Item 1A Extraction</div>
+            <div class="stage-desc">Regex boundary localization, TOC stripping, and dehyphenation into clean Silver paragraphs.</div>
+          </div>
+          <div class="pipeline-stage-card" data-stage="2">
+            <div class="stage-step-badge">STAGE 03</div>
+            <div class="stage-title">Vector Embeddings</div>
+            <div class="stage-desc">Local <code>bge-small-en-v1.5</code> vector representations with L2 normalization and disk caching.</div>
+          </div>
+          <div class="pipeline-stage-card" data-stage="3">
+            <div class="stage-step-badge">STAGE 04</div>
+            <div class="stage-title">UMAP + HDBSCAN</div>
+            <div class="stage-desc">Unsupervised theme discovery across all company-years simultaneously to isolate global topics.</div>
+          </div>
+          <div class="pipeline-stage-card" data-stage="4">
+            <div class="stage-step-badge">STAGE 05</div>
+            <div class="stage-title">Centroid Cosine Drift</div>
+            <div class="stage-desc">YoY vector divergence isolates true meaning evolution from raw word-count diffs.</div>
+          </div>
+          <div class="pipeline-stage-card" data-stage="5">
+            <div class="stage-step-badge">STAGE 06</div>
+            <div class="stage-title">Evidence Grounding</div>
+            <div class="stage-desc">Batch LLM synthesis citing exact source chunks; cached directly into Gold Parquet tables.</div>
+          </div>
         </div>
-        <div class="mona-card step-card">
-          <div class="step-icon-box">03</div>
-          <h4>Centroid Drift</h4>
-          <p>Year-over-year cosine divergence measurements isolate true phrasing shifts from raw paragraph volume fluctuations.</p>
-        </div>
-        <div class="mona-card step-card">
-          <div class="step-icon-box">04</div>
-          <h4>Evidence Grounding</h4>
-          <p>Local batch LLM explanations strictly cite verbatim excerpts — zero hallucinations or speculative invention.</p>
+
+        <div id="pipeline-detail-box" class="pipeline-detail-panel">
+          <strong style="color:var(--neon-sky);">STAGE 01: SEC EDGAR Ingestion</strong><br/>
+          <span style="color:#cbd5e1;">Strict rate limiting prevents SEC 429 blocks. Downloads raw primary HTML filings, stores immutable files in <code>data/bronze/</code>, and creates cryptographic metadata sidecars.</span>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 2: GLOBAL TABLE -->
+    <!-- VIEW 2: WHAT CHANGED INTELLIGENCE FEED -->
     <div id="view-global" class="view-section">
-      <div style="margin-bottom: 2rem;">
+      <div style="margin-bottom: 1.5rem;">
         <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Top Disclosed Drift Events</h2>
-        <p style="color:var(--text-secondary);">Ranked by Materiality Score: <code>abs(Δ Intensity) × log(1 + chunk_count)</code>. Click any row for primary source evidence.</p>
+        <p style="color:var(--text-secondary);">Ranked by Materiality Score: <code>abs(Δ Intensity) × log(1 + chunk_count)</code>. Click any row for forensic before/after verification.</p>
       </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="filter-bar">
+        <input type="text" id="filter-search" class="filter-input" placeholder="Search company or theme..." style="flex:1; min-width:200px;">
+        <select id="filter-sector" class="filter-select">
+          <option value="All">All Sectors</option>
+          <option value="Technology">Technology</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Industrials">Industrials</option>
+          <option value="Consumer Discretionary">Consumer</option>
+          <option value="Energy">Energy</option>
+        </select>
+        <select id="filter-type" class="filter-select">
+          <option value="All">All Classifications</option>
+          <option value="new">🌱 New</option>
+          <option value="intensifying">📈 Intensifying</option>
+          <option value="fading">📉 Fading</option>
+          <option value="disappeared">🛑 Disappeared</option>
+        </select>
+        <select id="filter-year" class="filter-select">
+          <option value="All">All Years</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+        </select>
+      </div>
+
       <div class="table-container">
         <table class="custom-table">
           <thead>
@@ -136,25 +208,34 @@
       </div>
     </div>
 
-    <!-- VIEW 3: TIMELINE -->
+    <!-- VIEW 3: COMPANY LONGITUDINAL TIMELINE -->
     <div id="view-timeline" class="view-section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
         <div>
           <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;" id="timeline-company-name">Company Temporal Trajectory</h2>
           <p style="color:var(--text-secondary);">Longitudinal evolution of thematic risk disclosure intensities.</p>
         </div>
-        <select id="company-selector" class="select-input" style="background:#0f172a; border:1px solid var(--border-highlight); color:#fff; padding:0.6rem 1rem; border-radius:10px;"></select>
+        <select id="company-selector" class="filter-select" style="min-width:240px;"></select>
       </div>
       <div class="timeline-track" id="timeline-track"></div>
     </div>
 
-    <!-- VIEW 4: SQL SANDBOX -->
+    <!-- VIEW 4: DUCKDB-WASM SQL SANDBOX -->
     <div id="view-sql" class="view-section">
       <div style="margin-bottom: 1.5rem;">
         <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">DuckDB-Wasm Interactive Sandbox</h2>
-        <p style="color:var(--text-secondary);">Execute real SQL queries directly on analytical Parquet files in your browser. Zero backend, zero server costs.</p>
+        <p style="color:var(--text-secondary);">Execute real SQL queries directly on analytical Parquet files in your browser. Zero backend, zero server latency.</p>
       </div>
+
       <div class="mona-card sql-sandbox">
+        <div class="query-presets-row">
+          <span style="font-size:0.82rem; font-weight:700; color:var(--neon-sky); align-self:center;">Example Queries:</span>
+          <button class="preset-chip" data-query="top-drift">Top Material Shifts</button>
+          <button class="preset-chip" data-query="emerging-ai">Emerging AI Disclosures</button>
+          <button class="preset-chip" data-query="centroid-divergence">Highest Centroid Drift</button>
+          <button class="preset-chip" data-query="sector-distribution">Sector Theme Breakdown</button>
+        </div>
+
         <textarea id="sql-input" class="sql-textarea">SELECT 
   t.label as theme_cluster,
   tc.fiscal_year,
@@ -166,19 +247,27 @@ WHERE tc.change_type = 'new'
 GROUP BY t.label, tc.fiscal_year
 ORDER BY avg_materiality DESC
 LIMIT 10;</textarea>
-        <button id="btn-run-sql" class="btn btn-primary">Run Query (DuckDB-Wasm)</button>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button id="btn-run-sql" class="btn btn-primary">Run Query (DuckDB-Wasm)</button>
+          <span id="sql-perf-indicator" style="font-family:var(--font-mono); font-size:0.85rem; color:var(--neon-sky);"></span>
+        </div>
+
         <div id="sql-results" style="margin-top: 1.5rem;"></div>
       </div>
     </div>
 
   </div>
 
-  <!-- Evidence Drilldown Modal -->
+  <!-- Forensic Evidence Drilldown Modal (Side-by-Side Before/After) -->
   <div id="detail-modal" class="modal-overlay">
     <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-        <h3 id="modal-title" style="font-family:var(--font-display); color:#fff; font-size:1.35rem;">Evidence Drilldown</h3>
-        <button id="modal-close-btn" style="background:transparent; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;">&times;</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-subtle); padding-bottom:1rem;">
+        <div>
+          <h3 id="modal-title" style="font-family:var(--font-display); color:#fff; font-size:1.45rem;">Forensic Evidence Drilldown</h3>
+          <p id="modal-subtitle" style="color:var(--text-secondary); font-size:0.9rem;"></p>
+        </div>
+        <button id="modal-close-btn" style="background:transparent; border:none; color:var(--text-secondary); font-size:1.75rem; cursor:pointer;">&times;</button>
       </div>
       <div id="modal-body"></div>
     </div>

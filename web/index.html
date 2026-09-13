@@ -188,18 +188,96 @@
     <!-- VIEW 2: KNOWLEDGE GRAPH NETWORK ("NETWORK OF THINGS") -->
     <div id="view-network" class="view-section">
       <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Interactive Knowledge Graph Network</h2>
-        <p style="color:var(--text-secondary);">Explore the interconnected network of 50+ filers, thematic risk manifolds, and 10-year disclosure connections. Hover any node to trace relationships.</p>
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          <span>Cross-Corpus Semantic Topology & Systemic Contagion</span>
+        </div>
+        <h2 style="font-family:var(--font-display); font-size:2.2rem; font-weight:800; color:#fff;">Interactive Knowledge Graph Network</h2>
+        <p style="color:var(--text-secondary); max-width:860px; font-size:1.02rem; line-height:1.6;">
+          Discover hidden cross-corporate dependencies and systemic contagion across 10 years of SEC disclosures. Click or hover any node to inspect connected filers, drift intensities, and verbatim excerpt diffs.
+        </p>
       </div>
-      <div class="mona-card interactive-showcase">
-        <canvas id="network-canvas"></canvas>
-        <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-          <div class="canvas-legend-row" style="margin-top:0;">
-            <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> Corporate Entities (50+ Filers)</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#a855f7;"></div> Thematic Risk Manifolds</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Emerging Black-Swan Outliers</div>
+
+      <!-- Graph Category Lens Filter Bar -->
+      <div class="query-presets-row" style="margin-bottom: 1.25rem;">
+        <span style="font-size:0.82rem; font-weight:700; color:var(--neon-sky); align-self:center;">Cluster Lens:</span>
+        <button class="preset-chip active graph-lens-btn" data-lens="all">All Clusters (50+ Filers)</button>
+        <button class="preset-chip graph-lens-btn" data-lens="ai">⚡ AI & Semiconductor Foundries</button>
+        <button class="preset-chip graph-lens-btn" data-lens="cyber">🛡️ Kernel & Infrastructure Resiliency</button>
+        <button class="preset-chip graph-lens-btn" data-lens="cloud">🌐 Cloud Data & Privacy Sovereignty</button>
+        <button class="preset-chip graph-lens-btn" data-lens="export">⚖️ Export Bans & Antitrust</button>
+        <button class="preset-chip graph-lens-btn" data-lens="pharma">🧬 Healthcare & Biologics API</button>
+      </div>
+
+      <!-- Split Layout: Network Canvas + Live Node Inspector -->
+      <div class="network-layout-grid">
+        <div class="mona-card interactive-showcase" style="margin:0; padding:1.5rem;">
+          <canvas id="network-canvas" style="height: 480px;"></canvas>
+          <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div class="canvas-legend-row" style="margin-top:0;">
+              <div class="legend-item"><div class="legend-dot" style="background:#ffffff;"></div> Corporate Filers (e.g. NVDA, AAPL)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> AI & Compute</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Semiconductor Foundries</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f43f5e;"></div> Infrastructure Resiliency</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Export Bans & Sanctions</div>
+            </div>
+            <span style="font-size:0.82rem; color:var(--text-secondary); font-family:var(--font-mono);">Drag to reposition • Click to inspect node</span>
           </div>
-          <span style="font-size:0.85rem; color:var(--text-secondary); font-family:var(--font-mono);">Hover or drag nodes to inspect semantic topology</span>
+        </div>
+
+        <!-- Live Node Inspector Side Panel -->
+        <div id="network-inspector-panel" class="mona-card inspector-panel">
+          <div class="inspector-header">
+            <div>
+              <span id="inspector-badge" class="pill pill-intensifying" style="font-size:0.7rem;">THEMATIC RISK MANIFOLD</span>
+              <h3 id="inspector-title" style="font-family:var(--font-display); color:#fff; font-size:1.35rem; margin-top:0.4rem;">AI Infrastructure & Compute</h3>
+            </div>
+            <span id="inspector-stats" style="font-family:var(--font-mono); font-size:0.82rem; color:var(--neon-sky);">6 Connected Filers</span>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.8); padding:1rem; border-radius:12px; border:1px solid rgba(56,189,248,0.2); margin:1rem 0;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#38bdf8; font-weight:700; letter-spacing:0.05em; margin-bottom:0.35rem;">💡 What This Connection Means:</div>
+            <p id="inspector-description" style="color:#f9fafb; font-size:0.88rem; line-height:1.55; margin:0;">
+              Hyperscalers and device makers are simultaneously disclosing severe dependencies on frontier foundation models and custom accelerator clusters, creating an industry-wide compute chokepoint.
+            </p>
+          </div>
+
+          <div style="margin-bottom:1rem;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-secondary); font-weight:700; margin-bottom:0.5rem;">Connected Entities & Risk Vectors:</div>
+            <div id="inspector-connections-list" style="display:flex; flex-direction:column; gap:0.45rem;">
+              <!-- Dynamic chips rendered by app.js -->
+            </div>
+          </div>
+
+          <div class="inspector-actions">
+            <button id="inspector-btn-timeline" class="btn btn-secondary" style="font-size:0.82rem; padding:0.6rem 1rem; width:100%; justify-content:center;">Inspect in 10-Year Timeline ↗</button>
+            <button id="inspector-btn-diff" class="btn btn-primary" style="font-size:0.82rem; padding:0.6rem 1rem; width:100%; justify-content:center;">View Excerpt Diff 🔍</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Guide: How to Read the Knowledge Graph -->
+      <div class="about-grid" style="margin-top: 2rem;">
+        <div class="mona-card about-card" style="padding:1.5rem;">
+          <div class="about-icon">🕸️</div>
+          <h4 style="color:#fff; font-size:1.05rem; margin-bottom:0.4rem;">1. Spot Systemic Contagion</h4>
+          <p style="color:var(--text-secondary); font-size:0.86rem; line-height:1.55;">
+            Filers sharing the same risk node face correlated operational vulnerabilities (e.g. NVIDIA, Apple, and Broadcom sharing Taiwan packaging dependencies).
+          </p>
+        </div>
+        <div class="mona-card about-card" style="padding:1.5rem;">
+          <div class="about-icon">🎯</div>
+          <h4 style="color:#fff; font-size:1.05rem; margin-bottom:0.4rem;">2. Identify Critical Risk Hubs</h4>
+          <p style="color:var(--text-secondary); font-size:0.86rem; line-height:1.55;">
+            Larger nodes represent high-centrality disclosure manifolds that bridge multiple distinct industry sectors.
+          </p>
+        </div>
+        <div class="mona-card about-card" style="padding:1.5rem;">
+          <div class="about-icon">🔬</div>
+          <h4 style="color:#fff; font-size:1.05rem; margin-bottom:0.4rem;">3. Jump to Verbatim Evidence</h4>
+          <p style="color:var(--text-secondary); font-size:0.86rem; line-height:1.55;">
+            Click any node or link in the inspector to directly open the side-by-side Before/After 10-K diffs grounding that connection.
+          </p>
         </div>
       </div>
     </div>

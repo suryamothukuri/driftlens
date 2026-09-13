@@ -1025,53 +1025,195 @@ function initNetworkCanvas() {
   const ctx = canvas.getContext('2d');
 
   const nodes = [
-    // Theme Clusters
-    { id: 't0', label: 'AI Infrastructure', type: 'theme', x: 0.35, y: 0.35, r: 24, color: '#38bdf8' },
-    { id: 't1', label: 'Semiconductor Foundries', type: 'theme', x: 0.65, y: 0.28, r: 22, color: '#f59e0b' },
-    { id: 't2', label: 'Cloud Data Privacy', type: 'theme', x: 0.45, y: 0.72, r: 22, color: '#818cf8' },
-    { id: 't3', label: 'Export Controls', type: 'theme', x: 0.76, y: 0.68, r: 20, color: '#10b981' },
-    { id: 't4', label: 'Kernel OS Resiliency', type: 'theme', x: 0.18, y: 0.65, r: 20, color: '#f43f5e' },
-    { id: 't5', label: 'Biologics API Sourcing', type: 'theme', x: 0.82, y: 0.42, r: 18, color: '#a855f7' },
+    // Theme Clusters (Manifolds)
+    { 
+      id: 't0', label: 'AI Infrastructure & Compute', type: 'theme', category: 'ai', x: 0.35, y: 0.35, r: 26, color: '#38bdf8',
+      desc: 'Hyperscale AI models (LLMs/frontier neural nets) require massive GPU compute clusters and power grid connections. Flagged as a top cross-corporate risk by Microsoft, Apple, Alphabet, Tesla, and Palantir.'
+    },
+    { 
+      id: 't1', label: 'Semiconductor Foundries & Packaging', type: 'theme', category: 'ai', x: 0.65, y: 0.28, r: 24, color: '#f59e0b',
+      desc: 'Severe concentrated reliance on Asian semiconductor foundries and 2.5D/3D wafer-level CoWoS packaging. Single-source bottlenecks constrain delivery for NVIDIA, Apple, Broadcom, and Tesla.'
+    },
+    { 
+      id: 't2', label: 'Cloud Data Privacy & Sovereignty', type: 'theme', category: 'cloud', x: 0.45, y: 0.72, r: 22, color: '#818cf8',
+      desc: 'Cross-border data transfer restrictions (EU GDPR/Data Act) and sovereign cloud requirements require massive localized infrastructure spend for Microsoft, CrowdStrike, and Palantir.'
+    },
+    { 
+      id: 't3', label: 'Export Controls & Trade Sanctions', type: 'theme', category: 'export', x: 0.76, y: 0.68, r: 22, color: '#10b981',
+      desc: 'US Department of Commerce Entity List rules and semiconductor export caps restrict high-performance GPU shipments to China, directly impacting NVIDIA, Alphabet, Broadcom, and Boeing.'
+    },
+    { 
+      id: 't4', label: 'Kernel OS & Mission-Critical Resiliency', type: 'theme', category: 'cyber', x: 0.18, y: 0.65, r: 22, color: '#f43f5e',
+      desc: 'Single-point-of-failure risks in kernel-level cybersecurity drivers and aerospace avionics subassemblies, creating catastrophic operational liabilities for CrowdStrike and Boeing.'
+    },
+    { 
+      id: 't5', label: 'Biologics & Active API Sourcing', type: 'theme', category: 'pharma', x: 0.82, y: 0.42, r: 20, color: '#a855f7',
+      desc: 'Global active pharmaceutical ingredient (API) and sterile injectable syringe shortages, compounded by Inflation Reduction Act Medicare price negotiation caps for Eli Lilly and Pfizer.'
+    },
 
-    // Companies
-    { id: 'NVDA', label: 'NVDA', type: 'company', x: 0.52, y: 0.22, r: 15, color: '#ffffff' },
-    { id: 'AAPL', label: 'AAPL', type: 'company', x: 0.26, y: 0.20, r: 15, color: '#ffffff' },
-    { id: 'MSFT', label: 'MSFT', type: 'company', x: 0.38, y: 0.52, r: 15, color: '#ffffff' },
-    { id: 'GOOGL', label: 'GOOGL', type: 'company', x: 0.68, y: 0.48, r: 15, color: '#ffffff' },
-    { id: 'CRWD', label: 'CRWD', type: 'company', x: 0.14, y: 0.46, r: 15, color: '#ffffff' },
-    { id: 'TSLA', label: 'TSLA', type: 'company', x: 0.22, y: 0.32, r: 15, color: '#ffffff' },
-    { id: 'AVGO', label: 'AVGO', type: 'company', x: 0.80, y: 0.26, r: 15, color: '#ffffff' },
-    { id: 'PLTR', label: 'PLTR', type: 'company', x: 0.58, y: 0.60, r: 15, color: '#ffffff' },
-    { id: 'LLY', label: 'LLY', type: 'company', x: 0.88, y: 0.58, r: 15, color: '#ffffff' },
-    { id: 'BA', label: 'BA', type: 'company', x: 0.48, y: 0.84, r: 15, color: '#ffffff' }
+    // Companies (Filers)
+    { id: 'NVDA', label: 'NVDA', fullName: 'NVIDIA Corporation', sector: 'Information Technology', type: 'company', category: 'ai', cik: '0001045810', x: 0.52, y: 0.22, r: 16, color: '#ffffff' },
+    { id: 'AAPL', label: 'AAPL', fullName: 'Apple Inc.', sector: 'Information Technology', type: 'company', category: 'ai', cik: '0000320193', x: 0.26, y: 0.20, r: 16, color: '#ffffff' },
+    { id: 'MSFT', label: 'MSFT', fullName: 'Microsoft Corporation', sector: 'Information Technology', type: 'company', category: 'cloud', cik: '0000789019', x: 0.38, y: 0.52, r: 16, color: '#ffffff' },
+    { id: 'GOOGL', label: 'GOOGL', fullName: 'Alphabet Inc.', sector: 'Communication Services', type: 'company', category: 'export', cik: '0001652044', x: 0.68, y: 0.48, r: 16, color: '#ffffff' },
+    { id: 'CRWD', label: 'CRWD', fullName: 'CrowdStrike Holdings', sector: 'Information Technology', type: 'company', category: 'cyber', cik: '0001535527', x: 0.14, y: 0.46, r: 16, color: '#ffffff' },
+    { id: 'TSLA', label: 'TSLA', fullName: 'Tesla, Inc.', sector: 'Consumer Discretionary', type: 'company', category: 'ai', cik: '0001318605', x: 0.22, y: 0.32, r: 16, color: '#ffffff' },
+    { id: 'AVGO', label: 'AVGO', fullName: 'Broadcom Inc.', sector: 'Information Technology', type: 'company', category: 'ai', cik: '0001730168', x: 0.80, y: 0.26, r: 16, color: '#ffffff' },
+    { id: 'PLTR', label: 'PLTR', fullName: 'Palantir Technologies', sector: 'Information Technology', type: 'company', category: 'cloud', cik: '0001321655', x: 0.58, y: 0.60, r: 16, color: '#ffffff' },
+    { id: 'LLY', label: 'LLY', fullName: 'Eli Lilly and Company', sector: 'Healthcare', type: 'company', category: 'pharma', cik: '0000059478', x: 0.88, y: 0.58, r: 16, color: '#ffffff' },
+    { id: 'BA', label: 'BA', fullName: 'The Boeing Company', sector: 'Industrials', type: 'company', category: 'cyber', cik: '0000012927', x: 0.48, y: 0.84, r: 16, color: '#ffffff' }
   ];
 
   const edges = [
-    { from: 'NVDA', to: 't0' }, { from: 'NVDA', to: 't1' }, { from: 'NVDA', to: 't3' },
-    { from: 'AAPL', to: 't0' }, { from: 'AAPL', to: 't1' },
-    { from: 'MSFT', to: 't0' }, { from: 'MSFT', to: 't2' },
-    { from: 'GOOGL', to: 't0' }, { from: 'GOOGL', to: 't3' },
-    { from: 'CRWD', to: 't4' }, { from: 'CRWD', to: 't2' },
-    { from: 'TSLA', to: 't0' }, { from: 'TSLA', to: 't1' },
-    { from: 'AVGO', to: 't1' }, { from: 'AVGO', to: 't3' },
-    { from: 'PLTR', to: 't0' }, { from: 'PLTR', to: 't2' },
-    { from: 'LLY', to: 't5' }, { from: 'LLY', to: 't3' },
-    { from: 'BA', to: 't4' }, { from: 'BA', to: 't3' }
+    { from: 'NVDA', to: 't0', delta: '+14.2%', drift: 0.842 }, { from: 'NVDA', to: 't1', delta: '+12.8%', drift: 0.810 }, { from: 'NVDA', to: 't3', delta: '+11.8%', drift: 0.710 },
+    { from: 'AAPL', to: 't0', delta: '+11.8%', drift: 0.792 }, { from: 'AAPL', to: 't1', delta: '+8.0%', drift: 0.490 },
+    { from: 'MSFT', to: 't0', delta: '+13.5%', drift: 0.780 }, { from: 'MSFT', to: 't2', delta: '+7.2%', drift: 0.610 },
+    { from: 'GOOGL', to: 't0', delta: '+9.2%', drift: 0.660 }, { from: 'GOOGL', to: 't3', delta: '+8.4%', drift: 0.710 },
+    { from: 'CRWD', to: 't4', delta: '+16.5%', drift: 0.880 }, { from: 'CRWD', to: 't2', delta: '+5.7%', drift: 0.350 },
+    { from: 'TSLA', to: 't0', delta: '+10.6%', drift: 0.730 }, { from: 'TSLA', to: 't1', delta: '+8.9%', drift: 0.580 },
+    { from: 'AVGO', to: 't1', delta: '+11.2%', drift: 0.740 }, { from: 'AVGO', to: 't3', delta: '+9.1%', drift: 0.620 },
+    { from: 'PLTR', to: 't0', delta: '+12.4%', drift: 0.760 }, { from: 'PLTR', to: 't2', delta: '+8.4%', drift: 0.590 },
+    { from: 'LLY', to: 't5', delta: '+9.1%', drift: 0.670 }, { from: 'LLY', to: 't3', delta: '+6.4%', drift: 0.420 },
+    { from: 'BA', to: 't4', delta: '+12.4%', drift: 0.760 }, { from: 'BA', to: 't3', delta: '+7.8%', drift: 0.490 }
   ];
 
+  let selectedNode = nodes[0];
   let hoveredNode = null;
   let draggedNode = null;
+  let activeLens = 'all';
   let animTime = 0;
 
   // Particle pulses traveling along edges
   const edgeParticles = [];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < 20; i++) {
     edgeParticles.push({
       edgeIdx: i % edges.length,
       progress: Math.random(),
       speed: 0.003 + Math.random() * 0.004
     });
   }
+
+  function updateInspector(n) {
+    if (!n) return;
+    selectedNode = n;
+
+    const badge = document.getElementById('inspector-badge');
+    const title = document.getElementById('inspector-title');
+    const stats = document.getElementById('inspector-stats');
+    const desc = document.getElementById('inspector-description');
+    const list = document.getElementById('inspector-connections-list');
+    const btnTimeline = document.getElementById('inspector-btn-timeline');
+    const btnDiff = document.getElementById('inspector-btn-diff');
+
+    if (badge) {
+      badge.textContent = n.type === 'theme' ? 'THEMATIC RISK MANIFOLD' : `CORPORATE FILER (${n.sector || 'SEC 10-K'})`;
+      badge.className = n.type === 'theme' ? 'pill pill-intensifying' : 'pill pill-new';
+    }
+
+    if (title) title.textContent = n.fullName ? `${n.fullName} (${n.label})` : n.label;
+
+    const connectedEdges = edges.filter(ed => ed.from === n.id || ed.to === n.id);
+    if (stats) {
+      stats.textContent = `${connectedEdges.length} Connected ${n.type === 'theme' ? 'Filers' : 'Risk Vectors'}`;
+    }
+
+    if (desc) {
+      if (n.desc) {
+        desc.textContent = n.desc;
+      } else if (n.type === 'company') {
+        desc.textContent = `${n.fullName} (${n.label}) disclosures exhibit strong semantic cross-correlations across ${connectedEdges.length} major risk manifolds over the 10-year horizon (2016–2025).`;
+      }
+    }
+
+    if (list) {
+      list.innerHTML = '';
+      connectedEdges.forEach(ed => {
+        const otherId = (ed.from === n.id) ? ed.to : ed.from;
+        const otherNode = nodes.find(x => x.id === otherId);
+        if (!otherNode) return;
+
+        const row = document.createElement('div');
+        row.className = 'connection-item';
+        row.innerHTML = `
+          <div>
+            <strong style="color:#fff; font-size:0.84rem;">${otherNode.label}</strong>
+            <span style="color:var(--text-secondary); font-size:0.75rem; margin-left:0.35rem;">(${otherNode.type === 'company' ? (otherNode.sector || 'Filer') : 'Risk Theme'})</span>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:0.78rem;">
+            <span style="color:#34d399; font-weight:700;">${ed.delta}</span>
+            <span style="color:#94a3b8; margin-left:0.3rem;">(Drift: ${ed.drift})</span>
+          </div>
+        `;
+
+        row.addEventListener('click', () => {
+          updateInspector(otherNode);
+        });
+
+        list.appendChild(row);
+      });
+    }
+
+    if (btnTimeline) {
+      btnTimeline.onclick = () => {
+        if (n.type === 'company') {
+          switchView('timeline');
+          const sel = document.getElementById('company-selector');
+          if (sel) { sel.value = n.cik; renderCompanyTimeline(n.cik); }
+        } else {
+          switchView('timeline');
+          renderCompanyTimeline('0001045810');
+        }
+      };
+    }
+
+    if (btnDiff) {
+      btnDiff.onclick = () => {
+        if (n.type === 'company') {
+          openForensicModal({
+            cik: n.cik,
+            ticker: n.label,
+            company: n.fullName,
+            sector: n.sector,
+            label: 'Thematic Risk Disclosures',
+            year: 2025,
+            drift: 0.842,
+            wasserstein: 0.612,
+            pval: 0.002,
+            score: 0.384,
+            type: 'intensifying'
+          });
+        } else {
+          openForensicModal({
+            cik: '0001045810',
+            ticker: 'NVDA',
+            company: 'NVIDIA Corporation',
+            sector: 'Information Technology',
+            label: n.label,
+            year: 2025,
+            drift: 0.842,
+            wasserstein: 0.612,
+            pval: 0.002,
+            score: 0.384,
+            type: 'intensifying'
+          });
+        }
+      };
+    }
+  }
+
+  // Lens Filters
+  document.querySelectorAll('.graph-lens-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.graph-lens-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeLens = btn.getAttribute('data-lens');
+
+      const matchingNode = nodes.find(n => activeLens === 'all' || n.category === activeLens);
+      if (matchingNode) updateInspector(matchingNode);
+
+      triggerBotSpeech(`Filtering knowledge graph by lens: [${btn.textContent.trim()}].`);
+    });
+  });
 
   function draw() {
     animTime += 0.02;
@@ -1097,12 +1239,14 @@ function initNetworkCanvas() {
       }
 
       // Draw connecting edges
-      edges.forEach((e, idx) => {
+      edges.forEach((e) => {
         const n1 = nodes.find(n => n.id === e.from);
         const n2 = nodes.find(n => n.id === e.to);
         if (!n1 || !n2) return;
 
-        const isHighlighted = (hoveredNode && (hoveredNode.id === n1.id || hoveredNode.id === n2.id));
+        const isMatchLens = (activeLens === 'all' || n1.category === activeLens || n2.category === activeLens);
+        const isSelectedOrHovered = (selectedNode && (selectedNode.id === n1.id || selectedNode.id === n2.id)) ||
+                                    (hoveredNode && (hoveredNode.id === n1.id || hoveredNode.id === n2.id));
 
         const x1 = n1.x * w;
         const y1 = n1.y * h;
@@ -1112,8 +1256,17 @@ function initNetworkCanvas() {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
-        ctx.strokeStyle = isHighlighted ? 'rgba(56, 189, 248, 0.85)' : 'rgba(255, 255, 255, 0.08)';
-        ctx.lineWidth = isHighlighted ? 2.5 : 1;
+        
+        if (isSelectedOrHovered) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
+          ctx.lineWidth = 2.5;
+        } else if (isMatchLens) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+          ctx.lineWidth = 1;
+        } else {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+          ctx.lineWidth = 0.5;
+        }
         ctx.stroke();
       });
 
@@ -1124,6 +1277,9 @@ function initNetworkCanvas() {
         const n1 = nodes.find(n => n.id === e.from);
         const n2 = nodes.find(n => n.id === e.to);
         if (!n1 || !n2) return;
+
+        const isMatchLens = (activeLens === 'all' || n1.category === activeLens || n2.category === activeLens);
+        if (!isMatchLens) return;
 
         ep.progress += ep.speed;
         if (ep.progress > 1) ep.progress = 0;
@@ -1142,16 +1298,20 @@ function initNetworkCanvas() {
 
       // Draw nodes
       nodes.forEach(n => {
+        const isMatchLens = (activeLens === 'all' || n.category === activeLens);
         const floatX = (draggedNode === n) ? 0 : Math.sin(animTime + n.r) * 0.003;
         const floatY = (draggedNode === n) ? 0 : Math.cos(animTime + n.r) * 0.003;
         const nx = (n.x + floatX) * w;
         const ny = (n.y + floatY) * h;
+        const isSelected = (selectedNode && selectedNode.id === n.id);
         const isHovered = (hoveredNode && hoveredNode.id === n.id);
 
+        const nodeAlpha = isMatchLens ? 1.0 : 0.25;
+
         // Node Glow Halo
-        const glowRadius = isHovered ? n.r * 1.8 : n.r * 1.3;
-        const grad = ctx.createRadialGradient(nx, ny, n.r * 0.4, nx, ny, glowRadius);
-        grad.addColorStop(0, n.color + '33');
+        const glowRadius = (isSelected || isHovered) ? n.r * 1.8 : n.r * 1.25;
+        const grad = ctx.createRadialGradient(nx, ny, n.r * 0.3, nx, ny, glowRadius);
+        grad.addColorStop(0, n.color + (isMatchLens ? '33' : '0d'));
         grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad;
         ctx.beginPath();
@@ -1160,23 +1320,23 @@ function initNetworkCanvas() {
 
         // Core Node
         ctx.beginPath();
-        ctx.arc(nx, ny, isHovered ? n.r * 1.15 : n.r, 0, Math.PI * 2);
-        ctx.fillStyle = n.type === 'company' ? '#0f172a' : n.color;
-        ctx.strokeStyle = n.color;
-        ctx.lineWidth = isHovered ? 3 : 2;
+        ctx.arc(nx, ny, (isSelected || isHovered) ? n.r * 1.15 : n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n.type === 'company' ? `rgba(15, 23, 42, ${nodeAlpha})` : n.color;
+        ctx.strokeStyle = (isSelected) ? '#ffffff' : n.color;
+        ctx.lineWidth = (isSelected) ? 3.5 : (isHovered ? 2.5 : 1.5);
         ctx.fill();
         ctx.stroke();
 
-        // Node inner icon/dot for company
+        // Inner dot for company nodes
         if (n.type === 'company') {
           ctx.beginPath();
-          ctx.arc(nx, ny, 3, 0, Math.PI * 2);
-          ctx.fillStyle = '#38bdf8';
+          ctx.arc(nx, ny, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = isMatchLens ? '#38bdf8' : 'rgba(56, 189, 248, 0.3)';
           ctx.fill();
         }
 
         // Label
-        ctx.fillStyle = isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.85)';
+        ctx.fillStyle = isSelected ? '#ffffff' : (isMatchLens ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.25)');
         ctx.font = n.type === 'theme' ? '700 11px Plus Jakarta Sans, sans-serif' : '700 11px JetBrains Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(n.label, nx, ny + n.r + 14);
@@ -1209,17 +1369,14 @@ function initNetworkCanvas() {
 
     hoveredNode = getNodeUnderMouse(e);
     canvas.style.cursor = hoveredNode ? 'grab' : 'crosshair';
-
-    if (hoveredNode) {
-      const connections = edges.filter(ed => ed.from === hoveredNode.id || ed.to === hoveredNode.id).length;
-      triggerBotSpeech(`Tracing topology: [${hoveredNode.label}] connects to ${connections} 10-K risk vectors.`);
-    }
   });
 
   canvas.addEventListener('mousedown', (e) => {
     const n = getNodeUnderMouse(e);
     if (n) {
       draggedNode = n;
+      updateInspector(n);
+      triggerBotSpeech(`Inspecting topology: [${n.label}].`);
       canvas.style.cursor = 'grabbing';
     }
   });
@@ -1230,6 +1387,9 @@ function initNetworkCanvas() {
       canvas.style.cursor = 'crosshair';
     }
   });
+
+  // Initialize inspector on load with default node
+  updateInspector(nodes[0]);
 }
 
 // -----------------------------------------------------------------------------

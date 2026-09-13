@@ -538,9 +538,63 @@ header.navbar {
   border-radius: 50%;
 }
 
+.network-layout-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 960px) {
+  .network-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inspector-panel {
+  padding: 1.75rem;
+  background: rgba(11, 18, 33, 0.92);
+  border: 1px solid var(--border-highlight);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.inspector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.inspector-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.connection-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.connection-item:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+  transform: translateX(4px);
+}
+
 #drift-canvas, #network-canvas {
   width: 100%;
-  height: 420px;
+  height: 480px;
   border-radius: 14px;
   background: radial-gradient(circle at center, #0a1122 0%, #030712 100%);
   border: 1px solid var(--border-subtle);

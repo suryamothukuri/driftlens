@@ -26,10 +26,12 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install project dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
 
       - name: Install test and lint tools
-        run: pip install pytest pytest-cov ruff
+        run: pip install pytest pytest-cov ruff requests-mock
 
       - name: Lint with ruff
         run: ruff check src/

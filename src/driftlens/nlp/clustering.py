@@ -136,3 +136,40 @@ class ThemeClusterer:
                 "embedding_index": int(orig_idx)
             })
         return anomalies
+
+
+Clusterer = ThemeClusterer
+
+
+def compute_cluster_stats(labels: np.ndarray, embeddings: Optional[np.ndarray] = None) -> Dict[str, Any]:
+    """Compute cluster summary statistics including noise fraction."""
+    unique = np.unique(labels)
+    n_total = len(labels)
+    n_noise = int(np.sum(labels == -1))
+    return {
+        "n_clusters": int(np.sum(unique >= 0)),
+        "n_noise": int(n_noise),
+        "noise_fraction": float(n_noise / n_total) if n_total > 0 else 0.0,
+        "cluster_sizes": {
+            int(lbl): int(np.sum(labels == lbl)) for lbl in unique if lbl >= 0
+        },
+    }
+
+
+def compute_centroid(embeddings: np.ndarray, labels: np.ndarray, cluster_id: int) -> np.ndarray:
+    """Compute mean embedding centroid for a specified cluster ID."""
+    mask = labels == cluster_id
+    if not np.any(mask):
+        return np.zeros(embeddings.shape[1], dtype=embeddings.dtype)
+    return embeddings[mask].mean(axis=0)
+
+
+def select_hdbscan_params(scale: str) -> Dict[str, int]:
+    """Select appropriate HDBSCAN parameters based on scale preset."""
+    if scale == "small":
+        return {"min_cluster_size": 15, "min_samples": 5}
+    elif scale == "medium":
+        return {"min_cluster_size": 25, "min_samples": 5}
+    else:
+        return {"min_cluster_size": 40, "min_samples": 8}
+

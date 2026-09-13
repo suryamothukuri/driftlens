@@ -1,7 +1,7 @@
-"""Change detection with Wasserstein distribution distance, vectorized permutation tests, and boilerplate convergence index."""
+"""Change detection, YoY delta calculation, centroid drift, and materiality ranking."""
 
 import logging
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -13,6 +13,23 @@ logger = logging.getLogger("driftlens.drift.change_detector")
 
 def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
     """Computes Year-over-Year changes, classification, and calibrated materiality scores."""
+    if intensity_df is None or intensity_df.empty:
+        return pd.DataFrame(
+            columns=[
+                "cik",
+                "cluster_id",
+                "fiscal_year",
+                "intensity",
+                "prev_intensity",
+                "intensity_delta",
+                "chunk_count",
+                "materiality_score",
+                "change_type",
+                "first_appearance",
+                "disappeared",
+            ]
+        )
+
     records = []
     df_sorted = intensity_df.sort_values(["cik", "cluster_id", "fiscal_year"])
 
@@ -22,7 +39,7 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
             row = group.iloc[i]
             year = int(row["fiscal_year"])
             curr_intensity = float(row["intensity"])
-            curr_count = int(row["chunk_count"])
+            curr_count = int(row.get("chunk_count", 0))
 
             if i == 0:
                 prev_intensity = 0.0
@@ -46,9 +63,9 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
                     change_type = "new"
                 elif disappeared:
                     change_type = "disappeared"
-                elif intensity_delta > 0.025:
+                elif intensity_delta > 0.02:
                     change_type = "intensifying"
-                elif intensity_delta < -0.025:
+                elif intensity_delta < -0.02:
                     change_type = "fading"
                 else:
                     change_type = "stable"
@@ -56,14 +73,14 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
             materiality_score = float(abs(intensity_delta) * np.log1p(curr_count))
 
             records.append({
-                "cik": str(cik).zfill(10),
+                "cik": str(cik),
                 "cluster_id": int(cluster_id),
                 "fiscal_year": year,
-                "intensity": round(curr_intensity, 4),
-                "prev_intensity": round(prev_intensity, 4),
-                "intensity_delta": round(intensity_delta, 4),
+                "intensity": float(curr_intensity),
+                "prev_intensity": float(prev_intensity),
+                "intensity_delta": float(intensity_delta),
                 "chunk_count": curr_count,
-                "materiality_score": round(materiality_score, 4),
+                "materiality_score": float(materiality_score),
                 "change_type": change_type,
                 "first_appearance": first_appearance,
                 "disappeared": disappeared,
@@ -71,10 +88,94 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(records)
 
+
+def compute_centroid_drift(
+    chunks_df: pd.DataFrame,
+    embeddings: np.ndarray,
+    chunk_ids_list: List[str],
+) -> pd.DataFrame:
+    """Compute year-over-year cosine drift of theme centroids per (cik, cluster_id)."""
+    if not isinstance(embeddings, np.ndarray) or embeddings.ndim != 2:
+        raise ValueError("embeddings must be a 2-D array")
+    if len(embeddings) != len(chunk_ids_list):
+        raise ValueError("chunk_ids_list length does not match embeddings")
+
+    if chunks_df is None or chunks_df.empty:
+        return pd.DataFrame(columns=["cik", "cluster_id", "fiscal_year", "centroid_drift"])
+
+    id_to_idx = {cid: idx for idx, cid in enumerate(chunk_ids_list)}
+    results = []
+
+    for (cik, cluster_id), group in chunks_df.groupby(["cik", "cluster_id"]):
+        years = sorted(group["fiscal_year"].unique())
+        for i in range(1, len(years)):
+            y_curr = years[i]
+            y_prev = years[i - 1]
+
+            ids_curr = group[group["fiscal_year"] == y_curr]["chunk_id"].tolist()
+            ids_prev = group[group["fiscal_year"] == y_prev]["chunk_id"].tolist()
+
+            idx_curr = [id_to_idx[cid] for cid in ids_curr if cid in id_to_idx]
+            idx_prev = [id_to_idx[cid] for cid in ids_prev if cid in id_to_idx]
+
+            if not idx_curr or not idx_prev:
+                continue
+
+            emb_curr = embeddings[idx_curr]
+            emb_prev = embeddings[idx_prev]
+
+            mean_curr = np.mean(emb_curr, axis=0, keepdims=True)
+            mean_prev = np.mean(emb_prev, axis=0, keepdims=True)
+            drift = float(cosine_distances(mean_curr, mean_prev)[0, 0])
+
+            results.append({
+                "cik": str(cik),
+                "cluster_id": int(cluster_id),
+                "fiscal_year": int(y_curr),
+                "centroid_drift": round(drift, 4),
+            })
+
+    if not results:
+        return pd.DataFrame(columns=["cik", "cluster_id", "fiscal_year", "centroid_drift"])
+    return pd.DataFrame(results)
+
+
+def rank_changes(
+    changes_df: pd.DataFrame,
+    centroid_drift_df: Optional[pd.DataFrame] = None,
+) -> pd.DataFrame:
+    """Merge changes with centroid drift and rank by materiality score descending."""
+    if changes_df is None or changes_df.empty:
+        return pd.DataFrame()
+
+    if centroid_drift_df is not None and not centroid_drift_df.empty:
+        merged = pd.merge(
+            changes_df,
+            centroid_drift_df[["cik", "cluster_id", "fiscal_year", "centroid_drift"]],
+            on=["cik", "cluster_id", "fiscal_year"],
+            how="left",
+        )
+    else:
+        merged = changes_df.copy()
+        if "centroid_drift" not in merged.columns:
+            merged["centroid_drift"] = np.nan
+
+    ranked = merged.sort_values("materiality_score", ascending=False).reset_index(drop=True)
+    ranked["rank"] = range(1, len(ranked) + 1)
+    return ranked
+
+
+def get_top_changes(ranked_df: pd.DataFrame, n: int = 500) -> pd.DataFrame:
+    """Return top N changes by materiality score."""
+    if ranked_df is None or ranked_df.empty:
+        return pd.DataFrame()
+    return ranked_df.head(n).copy()
+
+
 def compute_centroid_and_wasserstein_drift(
     chunks_df: pd.DataFrame,
     embeddings: np.ndarray,
-    chunk_ids_list: List[str]
+    chunk_ids_list: List[str],
 ) -> pd.DataFrame:
     """Computes both mean Centroid Cosine Drift and multi-modal Wasserstein / Energy distribution distance."""
     id_to_idx = {cid: idx for idx, cid in enumerate(chunk_ids_list)}
@@ -118,7 +219,7 @@ def compute_centroid_and_wasserstein_drift(
             boilerplate_index = max(0.0, min(1.0, float(1.0 - (d_curr + d_prev) / 2.0)))
 
             results.append({
-                "cik": str(cik).zfill(10),
+                "cik": str(cik),
                 "cluster_id": int(cluster_id),
                 "fiscal_year": int(y_curr),
                 "centroid_drift": round(centroid_drift, 4),
@@ -130,7 +231,10 @@ def compute_centroid_and_wasserstein_drift(
 
     return pd.DataFrame(results)
 
-def _vectorized_permutation_test(emb_a: np.ndarray, emb_b: np.ndarray, observed_stat: float, n_iter: int = 60) -> float:
+
+def _vectorized_permutation_test(
+    emb_a: np.ndarray, emb_b: np.ndarray, observed_stat: float, n_iter: int = 60
+) -> float:
     """Fast vectorized permutation test assessing statistical significance of observed semantic shift."""
     combined = np.vstack([emb_a, emb_b])
     n_a = len(emb_a)

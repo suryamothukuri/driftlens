@@ -1,5 +1,5 @@
 /* DriftLens — Premium Document Semantic Drift Engine & Forensics System */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
   --bg-deep: #030712;
@@ -30,9 +30,9 @@
   --gradient-emerald: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
   --gradient-card-border: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 100%);
 
-  --font-display: 'Syne', 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 * {
@@ -54,17 +54,38 @@ body {
   perspective: 1200px;
 }
 
-/* Atmospheric 3D Geometric Grid Background */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.028em;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Atmospheric 3D Geometric Grid & Vector Constellation Background */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image: 
+    radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 65%, rgba(168, 85, 247, 0.04) 0%, transparent 45%),
     linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(circle at 50% 25%, black 45%, transparent 90%);
-  -webkit-mask-image: radial-gradient(circle at 50% 25%, black 45%, transparent 90%);
+  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+  mask-image: radial-gradient(circle at 50% 25%, black 50%, transparent 95%);
+  -webkit-mask-image: radial-gradient(circle at 50% 25%, black 50%, transparent 95%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating SEC EDGAR Matrix Watermark Background */
+.bg-edgar-watermark {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 50% 50%, transparent 60%, rgba(3, 7, 18, 0.8) 100%),
+    url("data:image/svg+xml,%3Csvg width='600' height='600' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='edgarGrid' width='150' height='150' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='75' cy='75' r='1' fill='rgba(56,189,248,0.08)'/%3E%3Cpath d='M75 10 L75 140 M10 75 L140 75' stroke='rgba(255,255,255,0.015)' stroke-width='1' stroke-dasharray='2,6'/%3E%3Ctext x='15' y='30' font-family='monospace' font-size='9' fill='rgba(56,189,248,0.04)'%3EFORM 10-K %2F ITEM 1A%3C%2Ftext%3E%3Ctext x='15' y='130' font-family='monospace' font-size='8' fill='rgba(168,85,247,0.035)'%3EWasserstein W1(P,Q)%3C%2Ftext%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23edgarGrid)'/%3E%3C/svg%3E");
+  opacity: 0.75;
   pointer-events: none;
   z-index: 0;
 }
@@ -76,8 +97,8 @@ body::before {
   transform: translateX(-50%);
   width: 1100px;
   height: 600px;
-  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.18) 0%, rgba(99, 102, 241, 0.14) 35%, transparent 70%);
-  filter: blur(100px);
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.15) 35%, transparent 70%);
+  filter: blur(110px);
   pointer-events: none;
   z-index: 0;
   animation: pulseAurora 14s ease-in-out infinite alternate;
@@ -647,20 +668,38 @@ header.navbar {
   border-radius: 16px;
   transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 .pipeline-stage-card:hover, .pipeline-stage-card.active {
   border-color: var(--neon-sky);
-  background: rgba(30, 41, 59, 0.8);
-  transform: translateY(-3px);
+  background: rgba(30, 41, 59, 0.85);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px -10px rgba(56, 189, 248, 0.3);
+}
+.stage-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15));
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  color: var(--neon-sky);
 }
 .stage-step-badge {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--neon-sky);
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 .stage-title {
+  font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;

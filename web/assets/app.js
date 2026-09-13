@@ -252,32 +252,22 @@ function triggerBotSpeech(text) {
 }
 
 // -----------------------------------------------------------------------------
-// Hero Ambient Document Canvas
+// Hero Ambient Constellation Canvas
 // -----------------------------------------------------------------------------
 function initHeroCanvas() {
   const canvas = document.getElementById('hero-bg-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  const snippets = [
-    "ITEM 1A. RISK FACTORS",
-    "FORM 10-K (2016-2025)",
-    "CIK: 0001045810 / FY2025",
-    "Wasserstein Dist: 0.612 (p=0.002)",
-    "HDBSCAN::cluster_id = 0",
-    "bge-small-en-v1.5 embedding",
-    "Materiality Score: 0.384",
-    "Novel Outlier Score: 0.880"
-  ];
-
   let particles = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 28; i++) {
     particles.push({
-      text: snippets[i % snippets.length],
       x: Math.random() * 1000,
-      y: Math.random() * 400,
-      speedY: -0.25 - Math.random() * 0.35,
-      alpha: 0.15 + Math.random() * 0.35
+      y: Math.random() * 450,
+      radius: 1.5 + Math.random() * 2,
+      speedX: (Math.random() - 0.5) * 0.35,
+      speedY: (Math.random() - 0.5) * 0.35,
+      alpha: 0.15 + Math.random() * 0.3
     });
   }
 
@@ -285,15 +275,40 @@ function initHeroCanvas() {
     const { w, h } = autoResizeCanvas(canvas, ctx);
     if (w > 0 && h > 0) {
       ctx.clearRect(0, 0, w, h);
-      ctx.font = "500 11px JetBrains Mono, monospace";
 
-      particles.forEach(p => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.speedX;
         p.y += p.speedY;
-        if (p.y < -20) p.y = h + 20;
 
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
-        ctx.fillText(p.text, p.x % w, p.y);
-      });
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(56, 189, 248, 0.4)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Connect nearby nodes
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(56, 189, 248, ${0.12 * (1 - dist / 110)})`;
+            ctx.lineWidth = 0.75;
+            ctx.stroke();
+          }
+        }
+      }
     }
     requestAnimationFrame(draw);
   }

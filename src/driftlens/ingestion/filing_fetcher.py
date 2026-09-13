@@ -371,7 +371,7 @@ class FilingFetcher:
                         p.unlink()
                         logger.debug("Removed cached file: %s", p)
 
-        index_data = self.fetch_filing_index(cik=cik, accession_number=accession_number)
+        self.fetch_filing_index(cik=cik, accession_number=accession_number)
         doc_path = self.fetch_primary_document(
             cik=cik,
             accession_number=accession_number,

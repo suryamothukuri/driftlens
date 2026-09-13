@@ -150,7 +150,7 @@ class ThemeTracker:
     def get_theme_trajectory(
         self,
         cluster_id: int,
-        cik: Optional[str] = None,
+        cik: str | None = None,
     ) -> pd.DataFrame:
         """Return intensity over time for a single theme.
 

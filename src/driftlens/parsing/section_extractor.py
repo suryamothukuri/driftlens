@@ -1,8 +1,8 @@
 """Item 1A Risk Factors extraction with format detection (legacy HTML vs modern iXBRL) and TOC boundary checks."""
 
 import logging
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Any, Dict
 
 from bs4 import BeautifulSoup

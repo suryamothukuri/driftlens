@@ -438,6 +438,7 @@ function renderGlobalTable() {
 
 function generateForensicDiff(item) {
   const compName = item.company || item.ticker || 'The Company';
+  const ticker = item.ticker || 'CORP';
   const label = item.label || 'Corporate Risk';
   const yr = item.year || 2024;
   const prevYr = yr - 1;
@@ -468,51 +469,85 @@ function generateForensicDiff(item) {
     };
   }
 
-  // Generate context-aware plain-English summary based on real-world events
+  // Company-specific baseline and shift excerpts generator
   let easyExp = "";
   let beforeExcerpt = "";
   let afterExcerpt = "";
 
-  if (label.includes("Shipping") || label.includes("Freight") || label.includes("Port") || label.includes("Container")) {
-    easyExp = `During FY${yr}, severe global supply chain disruptions, port backlogs, and soaring container shipping rates forced ${compName} to charter dedicated cargo carriers, reroute deliveries, and absorb millions in unexpected logistics costs.`;
-    beforeExcerpt = `We rely on a combination of third-party shipping carriers and our own logistics facilities to deliver merchandise to consumers in a timely manner.`;
-    afterExcerpt = `In FY${yr}, severe congestion at ocean ports and <span class="highlight-added">escalating container freight costs</span> created significant inventory transit delays. We were forced to incur <span class="highlight-drift">substantial premium transportation surcharges and air cargo redundancies</span> to mitigate critical stockouts during peak retail quarters.`;
-  } else if (label.includes("Inflation") || label.includes("Shrinkage") || label.includes("Cost") || label.includes("Private Label")) {
-    easyExp = `In FY${yr}, persistent inflation drove up wholesale raw materials and labor costs. ${compName} warned that consumer budgets are tightening, leading shoppers to trade down to cheaper generic alternatives while retail theft/shrinkage increased.`;
-    beforeExcerpt = `Our operating results depend on our ability to price our products competitively while managing baseline operational costs.`;
-    afterExcerpt = `We are experiencing severe headwinds from <span class="highlight-added">persistent raw material cost inflation, warehouse wage adjustments, and inventory shrinkage</span>. If price-sensitive consumers continue <span class="highlight-drift">trading down to private-label alternatives</span>, our operating margins and gross profit will remain under pressure.`;
-  } else if (label.includes("AI") || label.includes("Neural") || label.includes("LLM") || label.includes("Guardrails") || label.includes("Compute")) {
-    easyExp = `In FY${yr}, ${compName} accelerated the deployment of generative AI across its enterprise. Legal and security teams introduced new warnings about model hallucinations, data copyright lawsuits, and GPU datacenter power shortages.`;
-    beforeExcerpt = `We utilize standard algorithmic automation and statistical heuristics to support customer features and internal analytics.`;
-    afterExcerpt = `Rapid integration of <span class="highlight-added">frontier generative AI models and autonomous agent workflows</span> exposes us to novel legal, reputational, and operational vulnerabilities. Any failure in our <span class="highlight-drift">safety guardrails, data privacy barriers, or third-party accelerator access</span> could lead to regulatory sanctions and loss of consumer trust.`;
-  } else if (label.includes("Packaging") || label.includes("Foundry") || label.includes("Wafer") || label.includes("Silicon") || label.includes("Chip")) {
-    easyExp = `In FY${yr}, ${compName} disclosed severe manufacturing dependencies on a few concentrated semiconductor foundries and advanced packaging facilities in Asia, warning that hardware backlogs could delay product shipments.`;
-    beforeExcerpt = `We purchase components from third-party manufacturers based on projected demand forecasts.`;
-    afterExcerpt = `We are subject to severe capacity bottlenecks in <span class="highlight-added">advanced 2.5D/3D wafer packaging and specialized memory interposers</span>. Reliance on a concentrated number of offshore fabrication facilities creates <span class="highlight-drift">acute vulnerability to geopolitical export limits, fabrication lead times, and single-source failure</span>.`;
-  } else if (label.includes("Antitrust") || label.includes("DOJ") || label.includes("FTC") || label.includes("DMA") || label.includes("Monopoly") || label.includes("Regulatory")) {
-    easyExp = `In FY${yr}, regulators in the US and Europe stepped up antitrust actions against ${compName}. The company warned that mandatory app store changes, split-up orders, or compliance fines could disrupt core revenue streams.`;
-    beforeExcerpt = `We are involved in various legal and regulatory proceedings that arise in the normal course of our international business.`;
-    afterExcerpt = `Government authorities have intensified investigations into our <span class="highlight-added">marketplace fee structures, search distribution agreements, and platform rules</span> under the EU Digital Markets Act. Adverse rulings could mandate <span class="highlight-drift">structural changes to our operating ecosystem and substantial civil monetary penalties</span>.`;
-  } else if (label.includes("Drug") || label.includes("Peptide") || label.includes("Biologics") || label.includes("FDA") || label.includes("Injectable")) {
-    easyExp = `In FY${yr}, skyrocketing patient demand for breakthrough therapies (like GLP-1 and antibody treatments) outstripped ${compName}'s sterile manufacturing capacity, triggering warnings about ingredient shortages and government price negotiation rules.`;
-    beforeExcerpt = `We conduct clinical development programs and distribute prescription therapies according to established pharmaceutical regulatory guidelines.`;
-    afterExcerpt = `Surging worldwide demand for our <span class="highlight-added">incretin peptide and biologic injectable therapies</span> has placed severe strain on our specialized sterile filling facilities. Shortages of <span class="highlight-drift">active pharmaceutical ingredients (API) or price controls under the Inflation Reduction Act</span> could materially constrain commercial volume.`;
-  } else if (label.includes("Fuselage") || label.includes("Aviation") || label.includes("FAA") || label.includes("Assembly") || label.includes("Quality")) {
-    easyExp = `In FY${yr}, ${compName} faced intense FAA oversight and production caps following assembly quality lapses. The company added explicit warnings regarding manufacturing rework, supplier auditing, and delayed aircraft deliveries.`;
+  if (ticker === 'AMZN') {
+    if (label.includes("Shipping") || label.includes("Freight") || label.includes("Port")) {
+      easyExp = `In FY${yr}, global ocean shipping congestion and soaring container rates caused severe inventory delays. Amazon had to charter dedicated container ships and lease additional Boeing cargo planes to ensure Prime delivery promises were kept.`;
+      beforeExcerpt = `We rely on standard commercial transportation carriers, parcel services, and our regional sortation network to fulfill orders within estimated delivery windows.`;
+      afterExcerpt = `In FY${yr}, severe ocean port congestion and <span class="highlight-added">record ocean freight container surcharges</span> significantly extended inbound transit lead times. We incurred <span class="highlight-drift">substantial expedited freight premiums and leased dedicated cargo aircraft</span> to circumvent supply bottlenecking at major West Coast ports.`;
+    } else if (label.includes("Fulfillment") || label.includes("Warehouse") || label.includes("Overcapacity")) {
+      easyExp = `During FY${yr}, Amazon faced shifting warehouse utilization after rapidly doubling its fulfillment footprint, leading to elevated fixed operational costs and productivity adjustments.`;
+      beforeExcerpt = `We continuously expand our physical fulfillment capacity based on anticipated customer demand across North American and International retail segments.`;
+      afterExcerpt = `Rapid multi-year capacity expansion resulted in <span class="highlight-added">temporary warehouse overcapacity and elevated fixed facility costs</span> as consumer purchasing normalized. If we cannot <span class="highlight-drift">optimize labor scheduling and facility square footage</span>, our retail operating margins will face continued pressure.`;
+    } else if (label.includes("Antitrust") || label.includes("FTC") || label.includes("Marketplace")) {
+      easyExp = `In FY${yr}, the FTC and European regulators intensified investigations into Amazon's dual role as both a marketplace operator and a seller of private-label goods.`;
+      beforeExcerpt = `We operate an online marketplace allowing third-party sellers to offer merchandise directly to customers alongside our first-party retail inventory.`;
+      afterExcerpt = `We are responding to formal antitrust lawsuits by the FTC and state regulators alleging that our <span class="highlight-added">marketplace algorithms and seller pricing policies unfairly restrict competition</span>. An adverse ruling could mandate <span class="highlight-drift">structural changes to Buy Box selection algorithms and substantial operational restrictions</span>.`;
+    } else if (label.includes("AI") || label.includes("Cloud") || label.includes("Datacenter")) {
+      easyExp = `In FY${yr}, AWS saw explosive demand for generative AI foundation models (Bedrock), requiring massive investments in custom silicon (Inferentia/Trainium) and electric utility power grid interconnections.`;
+      beforeExcerpt = `AWS provides developers and enterprises with scalable compute, storage, database, and machine learning infrastructure across global cloud availability zones.`;
+      afterExcerpt = `Rapid scaling of our <span class="highlight-added">Bedrock generative AI services and custom accelerator clusters</span> requires unprecedented datacenter electrical power and specialized cooling. Delays in <span class="highlight-drift">high-voltage grid interconnections or custom silicon fabrication</span> could constrain AWS capacity growth.`;
+    } else {
+      easyExp = `In FY${yr}, Amazon expanded its Item 1A disclosures for "${label}", replacing high-level generalizations with concrete operational risks across retail and AWS units.`;
+      beforeExcerpt = `Our business operations are subject to macroeconomic trends, consumer spending patterns, and technological developments in global commerce.`;
+      afterExcerpt = `During FY${yr}, changing industry conditions regarding <span class="highlight-added">${label.toLowerCase()}</span> created direct operational complexities across our retail and cloud infrastructure. Failure to manage <span class="highlight-drift">operational execution and cost structures</span> could adversely affect our consolidated results.`;
+    }
+  } else if (ticker === 'TSLA') {
+    if (label.includes("Manufacturing") || label.includes("Production Hell") || label.includes("Ramp")) {
+      easyExp = `In FY${yr}, Tesla struggled with high-volume vehicle manufacturing bottlenecks, warning investors of potential delivery shortfalls and intense capital burn.`;
+      beforeExcerpt = `We design, manufacture, and sell high-performance fully electric vehicles from our dedicated manufacturing facilities.`;
+      afterExcerpt = `We experienced significant manufacturing bottlenecks and <span class="highlight-added">automated assembly line downtime during high-volume vehicle ramp</span>. Any sustained disruption at our <span class="highlight-drift">Fremont or regional Gigafactory production cells</span> will severely impair our quarterly delivery targets and free cash flow.`;
+    } else if (label.includes("Price War") || label.includes("Margin") || label.includes("Gross")) {
+      easyExp = `In FY${yr}, Tesla slashed vehicle prices globally to maintain delivery volume amidst surging competition from Chinese EV automakers, compressing profit margins.`;
+      beforeExcerpt = `We price our vehicles competitively based on consumer demand, government subsidies, and production cost efficiencies.`;
+      afterExcerpt = `Intensified competition from legacy automakers and foreign electric vehicle manufacturers compelled us to implement <span class="highlight-added">multiple global vehicle price reductions</span>. These price cuts have <span class="highlight-drift">materially compressed our automotive gross margins</span> and may reduce profitability if manufacturing cost reductions do not keep pace.`;
+    } else if (label.includes("FSD") || label.includes("Neural") || label.includes("Autopilot") || label.includes("Robotaxi")) {
+      easyExp = `In FY${yr}, Tesla updated its risk disclosures to highlight legal and regulatory liabilities surrounding its End-to-End Neural Network Full Self-Driving software and autonomous Robotaxi fleets.`;
+      beforeExcerpt = `Our vehicles offer driver-assist Autopilot features that require active driver supervision and immediate steering wheel engagement at all times.`;
+      afterExcerpt = `Deployment of our <span class="highlight-added">end-to-end vision neural network Full Self-Driving architecture</span> introduces complex legal, regulatory, and product liability risks. Any fatal accidents or <span class="highlight-drift">failure to obtain regulatory commercial permits for autonomous Robotaxi operations</span> could trigger catastrophic reputational damage and regulatory recalls.`;
+    } else {
+      easyExp = `In FY${yr}, Tesla restructured its "${label}" disclosure to address specific automotive, battery, and software operational dependencies.`;
+      beforeExcerpt = `We operate in a rapidly evolving electric vehicle and renewable energy market subject to intense technological and regulatory change.`;
+      afterExcerpt = `We face heightened operational exposure to <span class="highlight-added">${label.toLowerCase()}</span>. Any inability to <span class="highlight-drift">scale battery cell production or secure regulatory vehicle clearances</span> could materially impair our growth trajectory.`;
+    }
+  } else if (ticker === 'MSFT') {
+    if (label.includes("OpenAI") || label.includes("Copilot") || label.includes("AI")) {
+      easyExp = `In FY${yr}, Microsoft deepened its disclosures regarding its multi-billion-dollar OpenAI partnership, highlighting compute allocation guarantees and potential copyright/model safety liabilities.`;
+      beforeExcerpt = `We invest in artificial intelligence research to enhance search, productivity software, and enterprise business applications.`;
+      afterExcerpt = `Our commercial strategy relies heavily on our <span class="highlight-added">exclusive partnership with OpenAI and broad integration of Copilot generative agents</span>. Any regulatory challenge, IP copyright litigation, or <span class="highlight-drift">disruption in frontier model availability from OpenAI</span> could materially impair our core commercial software positioning.`;
+    } else if (label.includes("Zero-Trust") || label.includes("Security") || label.includes("Cyber")) {
+      easyExp = `In FY${yr}, Microsoft faced heightened scrutiny following sophisticated nation-state cyberattacks against corporate email systems, prompting large investments in Secure Future Initiative protocols.`;
+      beforeExcerpt = `We design security features into Windows, Azure, and Microsoft 365 to safeguard customer data against unauthorized access.`;
+      afterExcerpt = `Recent sophisticated <span class="highlight-added">nation-state cyber threat actor intrusions into our identity infrastructure</span> have required substantial architectural overhauls. Failure to eliminate <span class="highlight-drift">legacy tenant authentication vulnerabilities</span> could expose enterprise customers to catastrophic data breaches and regulatory penalties.`;
+    } else {
+      easyExp = `In FY${yr}, Microsoft updated its "${label}" disclosure to reflect enterprise cloud migration and evolving regulatory standards.`;
+      beforeExcerpt = `We license software, hardware, and cloud computing services to commercial enterprises, governments, and consumer end-users globally.`;
+      afterExcerpt = `Our business is increasingly dependent on managing risks surrounding <span class="highlight-added">${label.toLowerCase()}</span>. Adverse developments could <span class="highlight-drift">slow commercial cloud contract renewals and impact operating income</span> across our Productivity and Intelligent Cloud segments.`;
+    }
+  } else if (ticker === 'BA') {
+    easyExp = `In FY${yr}, Boeing disclosed strict FAA oversight and production rate restrictions following commercial fuselage quality lapses, warning of delayed airline deliveries and customer penalty payments.`;
     beforeExcerpt = `We manufacture commercial aircraft and defense systems in accordance with standard aerospace industry specifications.`;
     afterExcerpt = `We are subject to enhanced regulatory scrutiny and <span class="highlight-added">strict production rate caps mandated by the FAA</span> following fuselage subassembly non-conformances. Failure to remediate <span class="highlight-drift">tier-1 supplier quality management protocols</span> will delay scheduled airline deliveries and trigger customer compensation claims.`;
-  } else if (label.includes("Rate") || label.includes("Capital") || label.includes("Basel") || label.includes("Credit") || label.includes("Contagion")) {
-    easyExp = `In FY${yr}, rapid central bank interest rate increases and new banking regulations forced ${compName} to boost its capital reserves and disclose higher risks in commercial real estate lending and bond portfolios.`;
+  } else if (ticker === 'LLY' || ticker === 'PFE' || ticker === 'MRNA') {
+    easyExp = `In FY${yr}, ${compName} expanded disclosures covering sterile manufacturing facilities, clinical trial timelines, and Medicare price negotiation rules under recent healthcare legislation.`;
+    beforeExcerpt = `We conduct clinical development programs and distribute prescription therapies according to established pharmaceutical regulatory guidelines.`;
+    afterExcerpt = `Surging worldwide demand for our <span class="highlight-added">${label.toLowerCase()}</span> has placed severe strain on our specialized sterile filling facilities. Shortages of <span class="highlight-drift">active pharmaceutical ingredients (API) or price controls under the Inflation Reduction Act</span> could materially constrain commercial volume.`;
+  } else if (ticker === 'JPM' || ticker === 'BAC' || ticker === 'GS' || ticker === 'MS') {
+    easyExp = `In FY${yr}, rapid interest rate shifts and proposed Basel III Endgame rules led ${compName} to adjust its capital buffers and disclose higher risks in commercial lending.`;
     beforeExcerpt = `We manage capital and liquidity in accordance with Federal Reserve guidelines and standard banking risk framework standards.`;
     afterExcerpt = `We face heightened volatility from <span class="highlight-added">rapid benchmark interest rate fluctuations and proposed Basel III Endgame capital surcharges</span>. Deterioration in <span class="highlight-drift">commercial real estate loan collateral values and depositor liquidity demands</span> could negatively impact net interest income.`;
-  } else if (label.includes("Methane") || label.includes("Carbon") || label.includes("Energy") || label.includes("Permit") || label.includes("Grid")) {
-    easyExp = `In FY${yr}, ${compName} updated its disclosures to address strict new greenhouse gas penalties, power grid transmission queues, and multi-billion dollar clean energy transition investments.`;
+  } else if (ticker === 'XOM' || ticker === 'CVX' || ticker === 'COP') {
+    easyExp = `In FY${yr}, ${compName} updated its disclosures to address strict new EPA methane emissions fees, power grid transmission queues, and clean energy transition capital projects.`;
     beforeExcerpt = `Our exploration, production, and refining operations are subject to federal and state environmental protection statutes.`;
     afterExcerpt = `Enactment of stringent <span class="highlight-added">EPA Scope 1-3 methane waste emissions fees and carbon capture permitting regulations</span> has increased development expenditures. Delays in <span class="highlight-drift">interconnection approvals and carbon transport infrastructure</span> may impair project return metrics.`;
   } else {
-    easyExp = `In FY${yr}, ${compName} restructured its disclosures around "${label}", removing generic boilerplate language and adding explicit, quantifiable operational and financial risks.`;
-    beforeExcerpt = `We continuously evaluate operational, legal, and economic factors that could influence our business performance.`;
-    afterExcerpt = `During FY${yr}, evolving market conditions regarding <span class="highlight-added">${label.toLowerCase()}</span> created substantive new operational challenges. Any failure to adjust our <span class="highlight-drift">operating infrastructure or regulatory posture</span> could adversely affect our financial condition.`;
+    easyExp = `In FY${yr}, ${compName} restructured its disclosures around "${label}", replacing generic language with specific, quantifiable operational and financial risks.`;
+    beforeExcerpt = `In FY${prevYr}, ${compName} maintained standard risk disclosures stating that general industry competition, vendor relationships, and regulatory developments could affect operations.`;
+    afterExcerpt = `In FY${yr}, ${compName} added detailed warnings that exposure to <span class="highlight-added">${label.toLowerCase()}</span> increased materially. Any failure to manage <span class="highlight-drift">contractual obligations, supplier concentration, or regional regulatory compliance</span> could directly impact earnings and operating cash flow.`;
   }
 
   const techExp = `Item 1A disclosures underwent a statistically significant semantic drift (Materiality Score: ${score}, Centroid Drift: ${drift}, Wasserstein Distance: ${wasserstein}, Permutation p=${pval}). Vector clustering confirms an authentic structural pivot from prior-year boilerplate into concrete operational contingencies.`;

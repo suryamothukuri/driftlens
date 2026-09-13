@@ -2,11 +2,11 @@
 
 > A general-purpose semantic drift detection engine for large, versioned document corpora.
 
-[![Tests](https://github.com/your-github-username/driftlens/actions/workflows/tests.yml/badge.svg)](https://github.com/your-github-username/driftlens/actions/workflows/tests.yml)
-[![Pipeline](https://github.com/your-github-username/driftlens/actions/workflows/pipeline.yml/badge.svg)](https://github.com/your-github-username/driftlens/actions/workflows/pipeline.yml)
+[![Tests](https://github.com/suryamothukuri/driftlens/actions/workflows/tests.yml/badge.svg)](https://github.com/suryamothukuri/driftlens/actions/workflows/tests.yml)
+[![Pipeline](https://github.com/suryamothukuri/driftlens/actions/workflows/pipeline.yml/badge.svg)](https://github.com/suryamothukuri/driftlens/actions/workflows/pipeline.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Live Demo](https://your-github-username.github.io/driftlens) · [Review Dashboard](https://your-streamlit-app.streamlit.app) · [Source](https://github.com/your-github-username/driftlens)
+[Live Demo](https://suryamothukuri.github.io/driftlens) · [Review Dashboard](https://your-streamlit-app.streamlit.app) · [Source](https://github.com/suryamothukuri/driftlens)
 
 ---
 

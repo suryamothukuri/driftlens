@@ -15,19 +15,15 @@ logger = logging.getLogger("driftlens.parsing.section_extractor")
 class SectionExtractor:
     """Format-aware Item 1A extractor handling both legacy HTML (2016-2018) and modern iXBRL (2019-2025)."""
 
-    ITEM_1A_PATTERNS = [
-        re.compile(r"item\s+1a\.?\s*[:\-–—]?\s*risk\s+factors", re.IGNORECASE),
-        re.compile(r"item\s+1a\s+risk\s+factors", re.IGNORECASE),
-        re.compile(r"risk\s+factors\s+item\s+1a", re.IGNORECASE),
-    ]
+    ITEM_1A_RE = re.compile(
+        r"(?:item\s+1a\.?\s*[:\-–—]?\s*risk\s+factors|risk\s+factors\s*[:\-–—]?\s*item\s+1a|item\s+1a\b)",
+        re.IGNORECASE,
+    )
 
-    BOUNDARY_PATTERNS = [
-        re.compile(r"item\s+1b\.?\s*[:\-–—]?\s*unresolved\s+staff\s+comments", re.IGNORECASE),
-        re.compile(r"item\s+1b\.?", re.IGNORECASE),
-        re.compile(r"item\s+1c\.?\s*[:\-–—]?\s*cybersecurity", re.IGNORECASE),
-        re.compile(r"item\s+2\.?\s*[:\-–—]?\s*properties", re.IGNORECASE),
-        re.compile(r"item\s+3\.?\s*[:\-–—]?\s*legal\s+proceedings", re.IGNORECASE),
-    ]
+    BOUNDARY_RE = re.compile(
+        r"(?:item\s+1b\.?\s*[:\-–—]?\s*unresolved\s+staff\s+comments|item\s+1b\.?\b|item\s+1c\.?\b|item\s+2\.?\b|item\s+3\.?\b)",
+        re.IGNORECASE,
+    )
 
     def __init__(self, silver_dir: Optional[Path] = None) -> None:
         self.silver_dir = Path(silver_dir) if silver_dir else None
@@ -51,12 +47,7 @@ class SectionExtractor:
         full_text = soup.get_text(separator="\n")
 
         # 2. Match Heading
-        matches = []
-        for pat in self.ITEM_1A_PATTERNS:
-            for m in pat.finditer(full_text):
-                matches.append(m)
-
-        matches.sort(key=lambda m: m.start())
+        matches = list(self.ITEM_1A_RE.finditer(full_text))
 
         if not matches:
             return {
@@ -69,24 +60,20 @@ class SectionExtractor:
                 "error": "ITEM_1A_HEADING_NOT_FOUND",
             }
 
-        # 3. If multiple matches, select the section start (skip early TOC residual if present)
+        # 3. Select match: if first match is very short before the second match, skip TOC entry
         selected_match = matches[0]
-        if len(matches) > 1 and selected_match.start() < len(full_text) * 0.30:
-            selected_match = matches[1]
+        if len(matches) > 1:
+            # Check if text between match[0] and match[1] is short (< 150 chars, likely a TOC line)
+            if matches[1].start() - matches[0].end() < 150:
+                selected_match = matches[1]
 
         start_pos = selected_match.end()
 
         # 4. Find end boundary
         end_pos = len(full_text)
-        earliest_boundary = None
-        for b_pat in self.BOUNDARY_PATTERNS:
-            for bm in b_pat.finditer(full_text[start_pos:]):
-                b_idx = start_pos + bm.start()
-                if earliest_boundary is None or b_idx < earliest_boundary:
-                    earliest_boundary = b_idx
-
-        if earliest_boundary is not None and earliest_boundary > start_pos:
-            end_pos = earliest_boundary
+        bm = self.BOUNDARY_RE.search(full_text[start_pos:])
+        if bm is not None and bm.start() > 0:
+            end_pos = start_pos + bm.start()
 
         extracted_text = full_text[start_pos:end_pos].strip()
 

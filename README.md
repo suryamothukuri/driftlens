@@ -138,6 +138,74 @@ python -m driftlens.pipeline run --scale full
 
 Each `run` command is fully idempotent: already-fetched filings are not re-downloaded, and already-embedded chunks are not re-processed. Re-running after a partial failure resumes from the last completed phase.
 
+### Running on Custom Companies & Universes (S&P 500, S&P 1000, Custom CIKs)
+
+DriftLens is designed to analyze any custom list of US public companies or market indices.
+
+#### 1. Running on Specific Companies (Custom CIK File)
+
+To analyze a specific list of companies, create a plain text file containing their SEC **Central Index Keys (CIKs)**, one per line (comments and leading zeros are supported):
+
+```text
+# my_companies.txt
+0000320193  # Apple Inc. (AAPL)
+0000789019  # Microsoft Corp. (MSFT)
+0001652044  # Alphabet Inc. (GOOGL)
+0001018724  # Amazon.com Inc. (AMZN)
+0001045810  # NVIDIA Corp. (NVDA)
+0001326801  # Meta Platforms Inc. (META)
+0001318605  # Tesla Inc. (TSLA)
+```
+
+> [!TIP]
+> CIKs can be provided with or without leading zeros (e.g., `320193` or `0000320193`). You can look up any company's CIK on the [SEC EDGAR Company Search](https://www.sec.gov/edgar/searchedgar/companysearch).
+
+Execute the pipeline with the `--companies` flag:
+```bash
+python -m driftlens.pipeline run --companies my_companies.txt
+```
+
+#### 2. Running on Large Universes (S&P 500, S&P 1000, Russell 2000)
+
+To scale DriftLens across an entire market index:
+
+- **Predefined Presets**:
+  - `--scale small`: Top-10 S&P 500 leaders across 3 fiscal years (ideal for rapid testing and demos).
+  - `--scale medium`: 100 diversified S&P 500 companies across 5 fiscal years.
+  - `--scale full`: Full index universe (Russell 1000 / S&P 500) across 10 fiscal years.
+
+```bash
+# Run full index preset
+python -m driftlens.pipeline run --scale full
+```
+
+- **Custom Universe File (e.g. S&P 500 / S&P 1000)**:
+  Extract CIKs from any index or screening tool into `sp500_ciks.txt` or `sp1000_ciks.txt` and execute:
+  ```bash
+  python -m driftlens.pipeline run --companies sp500_ciks.txt
+  ```
+
+#### 3. Modular Stage Execution & Skipping Stages
+
+DriftLens saves raw HTML files immutably in `data/bronze/` and cached vector embeddings in `data/silver/`. You can selectively bypass earlier stages during iterative experiments:
+
+```bash
+# Skip ingestion if filings are already in data/bronze/
+python -m driftlens.pipeline run --companies my_companies.txt --skip-ingestion
+
+# Re-run drift metrics without re-computing embeddings
+python -m driftlens.pipeline run --companies my_companies.txt --skip-ingestion --skip-parsing --skip-nlp
+
+# Compute drift metrics only (skipping LLM explanations)
+python -m driftlens.pipeline run --companies my_companies.txt --skip-explain
+```
+
+#### 4. SEC EDGAR Rate Limiting & User-Agent Compliance
+
+The SEC requires automated requests to declare a User-Agent containing contact details and strictly caps requests at 10 req/s. DriftLens automatically handles exponential backoff and enforces a safe default rate limit (8 req/s).
+
+---
+
 ### Run the dashboard locally
 
 ```bash
@@ -201,14 +269,16 @@ driftlens/
 │       └── tests.yml          # Lint + test on every push and PR
 ├── src/
 │   └── driftlens/
-│       ├── pipeline.py        # CLI entrypoint (check-setup, run)
-│       ├── ingest.py          # Phase 1: SEC EDGAR fetch + HTML extraction
-│       ├── embed.py           # Phase 2: sentence-transformer embeddings + UMAP
-│       ├── cluster.py         # Phase 3: HDBSCAN clustering + theme labeling
-│       ├── drift.py           # Phase 4: centroid drift scoring + materiality
-│       └── explain.py         # Phase 5: Ollama-backed grounded explanations
+│       ├── pipeline.py        # CLI orchestrator & entrypoint
+│       ├── config.py          # Scales, paths, model & EDGAR configs
+│       ├── ingestion/         # Phase 1: SEC EDGAR fetch & bulk download
+│       ├── parsing/           # Phase 2: HTML Item 1A parsing & XBRL extraction
+│       ├── nlp/               # Phase 3: Sentence chunking, embeddings & HDBSCAN clustering
+│       ├── drift/             # Phase 4: Centroid cosine drift & materiality scoring
+│       ├── explain/           # Phase 5: Ollama grounded explanation builder
+│       └── gold/              # Phase 6: Pandera schema validation & Parquet serialization
 ├── dashboard/
-│   └── streamlit_app.py       # Streamlit dashboard (reads gold Parquet)
+│   └── streamlit_app.py       # Streamlit analytics dashboard (reads gold Parquet)
 ├── web/                       # Static site served by GitHub Pages
 │   ├── index.html
 │   └── data/                  # Gold Parquet files copied here at deploy time
@@ -217,12 +287,14 @@ driftlens/
 │   ├── silver/                # Embeddings and cluster assignments (gitignored)
 │   └── gold/                  # Drift scores + explanations (committed to repo)
 ├── tests/
-│   ├── test_ingest.py
-│   ├── test_embed.py
-│   ├── test_cluster.py
+│   ├── test_ingestion.py
+│   ├── test_parsing.py
+│   ├── test_clustering.py
 │   ├── test_drift.py
-│   └── test_explain.py
+│   ├── test_drift_layer.py
+│   └── test_gold_schemas.py
 ├── requirements.txt
+├── packages.txt
 └── README.md
 ```
 

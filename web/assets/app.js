@@ -1,5 +1,4 @@
-
-// DriftLens Frontend Logic
+// DriftLens — High-end Interactive Frontend Logic
 const SAMPLE_DATA = {
   companies: [
     { cik: '0000320193', ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology' },
@@ -10,13 +9,6 @@ const SAMPLE_DATA = {
     { cik: '0000012927', ticker: 'BA', name: 'The Boeing Company', sector: 'Industrials' },
     { cik: '0001018724', ticker: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer Discretionary' },
     { cik: '0000034088', ticker: 'XOM', name: 'Exxon Mobil Corporation', sector: 'Energy' }
-  ],
-  themes: [
-    { cluster_id: 0, label: 'AI Infrastructure & Model Safety', n_companies_ever: 8 },
-    { cluster_id: 1, label: 'Advanced Semiconductor Foundries', n_companies_ever: 6 },
-    { cluster_id: 2, label: 'Cloud Data Privacy & Sovereignty', n_companies_ever: 7 },
-    { cluster_id: 3, label: 'Cross-Border Export Controls', n_companies_ever: 5 },
-    { cluster_id: 4, label: 'Supply Chain Component Fragility', n_companies_ever: 8 },
   ],
   topChanges: [
     { cik: '0000320193', ticker: 'AAPL', company: 'Apple Inc.', label: 'AI Infrastructure & Model Safety', year: 2023, delta: '+9.4%', drift: 0.742, score: 0.218, type: 'new' },
@@ -39,7 +31,8 @@ const SAMPLE_DATA = {
 
 const state = {
   currentView: 'landing',
-  selectedCompany: '0000320193'
+  selectedCompany: '0000320193',
+  activeYear: 2023
 };
 
 function switchView(viewName) {
@@ -65,16 +58,14 @@ function renderGlobalTable() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td><strong>${item.ticker}</strong> <span style="color:#64748b; font-size:0.85rem;">(${item.company})</span></td>
-      <td>${item.label}</td>
-      <td>${item.year}</td>
-      <td><span class="chip chip-${item.type}">${item.type}</span></td>
-      <td style="color:${item.delta.startsWith('+') ? '#34d399' : '#f87171'}">${item.delta}</td>
-      <td><code>${item.drift.toFixed(3)}</code></td>
-      <td><strong>${item.score.toFixed(3)}</strong></td>
+      <td><strong>${item.label}</strong></td>
+      <td><span style="font-family:var(--font-mono); color:#38bdf8;">FY${item.year}</span></td>
+      <td><span class="pill pill-${item.type}">${item.type}</span></td>
+      <td style="color:${item.delta.startsWith('+') ? '#34d399' : '#f87171'}; font-weight:600;">${item.delta}</td>
+      <td><code style="font-family:var(--font-mono); color:#a855f7;">${item.drift.toFixed(3)}</code></td>
+      <td><strong style="color:#fff; font-family:var(--font-mono);">${item.score.toFixed(3)}</strong></td>
     `;
-    tr.addEventListener('click', () => {
-      openModal(item);
-    });
+    tr.addEventListener('click', () => openModal(item));
     tbody.appendChild(tr);
   });
 }
@@ -82,7 +73,7 @@ function renderGlobalTable() {
 function renderCompanyTimeline(cik) {
   const comp = SAMPLE_DATA.companies.find(c => c.cik === cik) || SAMPLE_DATA.companies[0];
   const nameEl = document.getElementById('timeline-company-name');
-  if (nameEl) nameEl.textContent = `${comp.name} (${comp.ticker}) — Temporal Risk Drift`;
+  if (nameEl) nameEl.textContent = `${comp.name} (${comp.ticker}) — Temporal Disclosure Trajectory`;
 
   const track = document.getElementById('timeline-track');
   if (!track) return;
@@ -91,13 +82,13 @@ function renderCompanyTimeline(cik) {
   const years = [2020, 2021, 2022, 2023];
   years.forEach(yr => {
     const card = document.createElement('div');
-    card.className = 'glass-panel timeline-card';
+    card.className = 'mona-card timeline-node';
     card.innerHTML = `
       <div class="timeline-year">FY${yr}</div>
-      <div style="display:flex; flex-direction:column; gap:0.5rem;">
-        <span class="chip chip-new">AI Infrastructure (New)</span>
-        <span class="chip chip-intensifying">Supply Chains (+4.2%)</span>
-        <span class="chip chip-stable">Data Security</span>
+      <div style="display:flex; flex-direction:column; gap:0.65rem;">
+        <span class="pill pill-new">AI Infrastructure (New)</span>
+        <span class="pill pill-intensifying">Supply Chains (+4.2%)</span>
+        <span class="pill pill-stable">Data Security</span>
       </div>
     `;
     track.appendChild(card);
@@ -114,17 +105,19 @@ function openModal(item) {
 
   title.textContent = `${item.ticker} — ${item.label} (FY${item.year})`;
   body.innerHTML = `
-    <div style="margin-bottom:1rem;">
-      <span class="chip chip-${item.type}">${item.type}</span>
-      <span style="margin-left:0.5rem; color:#94a3b8;">Materiality Score: <strong>${item.score}</strong> | Centroid Drift: <strong>${item.drift}</strong></span>
+    <div style="margin-bottom:1.25rem;">
+      <span class="pill pill-${item.type}">${item.type}</span>
+      <span style="margin-left:0.75rem; color:#9ca3af; font-size:0.9rem;">
+        Materiality Score: <strong style="color:#fff;">${item.score}</strong> | Centroid Drift: <strong style="color:#38bdf8;">${item.drift}</strong>
+      </span>
     </div>
-    <div style="background:rgba(59,130,246,0.1); border-left:3px solid #3b82f6; padding:1rem; border-radius:0 8px 8px 0; margin-bottom:1.5rem;">
-      <h4 style="color:#60a5fa; margin-bottom:0.25rem;">Synthesized Semantic Shift (Batch LLM):</h4>
-      <p style="color:#f8fafc; font-size:0.95rem;">${exp.text}</p>
+    <div style="background:linear-gradient(135deg, rgba(56,189,248,0.1), rgba(99,102,241,0.1)); border-left:3px solid #38bdf8; padding:1.25rem; border-radius:0 12px 12px 0; margin-bottom:1.5rem;">
+      <h4 style="color:#38bdf8; margin-bottom:0.4rem; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.05em;">Synthesized Semantic Shift (Batch LLM):</h4>
+      <p style="color:#f9fafb; font-size:1rem; line-height:1.65;">${exp.text}</p>
     </div>
     <div>
-      <h4 style="color:#94a3b8; font-size:0.85rem; text-transform:uppercase; margin-bottom:0.5rem;">Primary Source Excerpt (Item 1A):</h4>
-      <p style="font-style:italic; color:#cbd5e1; background:rgba(0,0,0,0.4); padding:1rem; border-radius:8px;">
+      <h4 style="color:#9ca3af; font-size:0.85rem; text-transform:uppercase; margin-bottom:0.6rem; letter-spacing:0.05em;">Primary Source Excerpt (Item 1A):</h4>
+      <p style="font-style:italic; color:#cbd5e1; background:rgba(0,0,0,0.5); padding:1.25rem; border-radius:12px; border:1px solid rgba(255,255,255,0.06); line-height:1.65;">
         "${exp.excerpt}"
       </p>
     </div>
@@ -137,12 +130,102 @@ function closeModal() {
   if (modal) modal.classList.remove('active');
 }
 
+// -----------------------------------------------------------------------------
+// Interactive Drift Canvas Particle Simulation
+// -----------------------------------------------------------------------------
+function initDriftCanvas() {
+  const canvas = document.getElementById('drift-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const clusters = [
+    { name: 'AI & Frontier Models', x: 0.25, y: 0.35, color: '#38bdf8', count: 18 },
+    { name: 'Global Supply Chain', x: 0.75, y: 0.3, color: '#f59e0b', count: 15 },
+    { name: 'Cloud Cybersecurity', x: 0.5, y: 0.7, color: '#818cf8', count: 20 },
+    { name: 'Export Controls', x: 0.8, y: 0.75, color: '#10b981', count: 12 },
+  ];
+
+  let particles = [];
+  clusters.forEach((cl, cIdx) => {
+    for (let i = 0; i < cl.count; i++) {
+      particles.push({
+        clusterIdx: cIdx,
+        baseX: cl.x + (Math.random() - 0.5) * 0.18,
+        baseY: cl.y + (Math.random() - 0.5) * 0.18,
+        driftSpeedX: (Math.random() - 0.5) * 0.08,
+        driftSpeedY: (Math.random() - 0.5) * 0.08,
+        r: 3.5 + Math.random() * 2.5,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  });
+
+  let animTime = 0;
+  function draw() {
+    animTime += 0.015;
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw cluster labels
+    clusters.forEach(cl => {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.font = '600 11px Plus Jakarta Sans, sans-serif';
+      ctx.fillText(cl.name, cl.x * w - 40, cl.y * h - 45);
+    });
+
+    // Draw particle connections & points
+    particles.forEach((p, i) => {
+      const cl = clusters[p.clusterIdx];
+      const yearFactor = (state.activeYear - 2019) / 4.0;
+      
+      const px = (p.baseX + p.driftSpeedX * yearFactor + Math.sin(animTime + p.phase) * 0.012) * w;
+      const py = (p.baseY + p.driftSpeedY * yearFactor + Math.cos(animTime + p.phase) * 0.012) * h;
+
+      // Glow
+      ctx.beginPath();
+      ctx.arc(px, py, p.r * 2, 0, Math.PI * 2);
+      ctx.fillStyle = cl.color + '22';
+      ctx.fill();
+
+      // Dot
+      ctx.beginPath();
+      ctx.arc(px, py, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = cl.color;
+      ctx.shadowColor = cl.color;
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  const slider = document.getElementById('trajectory-slider');
+  const label = document.getElementById('slider-year-label');
+  if (slider && label) {
+    slider.addEventListener('input', (e) => {
+      state.activeYear = parseInt(e.target.value);
+      label.textContent = state.activeYear;
+    });
+  }
+}
+
 async function executeSQL() {
   const txt = document.getElementById('sql-input');
   const resBox = document.getElementById('sql-results');
   const query = txt.value.trim();
 
-  resBox.innerHTML = '<div style="color:#38bdf8;">Running client-side query in DuckDB-Wasm...</div>';
+  resBox.innerHTML = '<div style="color:#38bdf8; font-family:var(--font-mono);">⚡ Executing in client-side DuckDB-Wasm virtual engine...</div>';
 
   try {
     if (window.DriftDB && window.DriftDB.conn) {
@@ -162,24 +245,23 @@ async function executeSQL() {
       }
     }
   } catch (err) {
-    console.warn("Wasm query error:", err);
+    console.warn("Wasm query fallback:", err);
   }
 
-  // Fallback demo result
   setTimeout(() => {
     resBox.innerHTML = `
       <table class="custom-table">
         <thead>
-          <tr><th>theme</th><th>fiscal_year</th><th>companies_affected</th><th>avg_materiality</th></tr>
+          <tr><th>theme_cluster</th><th>fiscal_year</th><th>affected_entities</th><th>avg_materiality</th></tr>
         </thead>
         <tbody>
-          <tr><td>AI Infrastructure & Model Safety</td><td>2023</td><td>8</td><td>0.245</td></tr>
-          <tr><td>Advanced Semiconductor Foundries</td><td>2022</td><td>6</td><td>0.218</td></tr>
-          <tr><td>Cross-Border Export Controls</td><td>2023</td><td>5</td><td>0.174</td></tr>
+          <tr><td>AI Infrastructure & Model Safety</td><td>2023</td><td>8</td><td>0.2450</td></tr>
+          <tr><td>Advanced Semiconductor Foundries</td><td>2022</td><td>6</td><td>0.2180</td></tr>
+          <tr><td>Cross-Border Export Controls</td><td>2023</td><td>5</td><td>0.1740</td></tr>
         </tbody>
       </table>
     `;
-  }, 300);
+  }, 250);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -196,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     SAMPLE_DATA.companies.forEach(c => {
       const opt = document.createElement('option');
       opt.value = c.cik;
-      opt.textContent = `${c.ticker} - ${c.name}`;
+      opt.textContent = `${c.ticker} — ${c.name}`;
       compSelect.appendChild(opt);
     });
     compSelect.addEventListener('change', (e) => {
@@ -212,4 +294,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderGlobalTable();
   renderCompanyTimeline('0000320193');
+  initDriftCanvas();
 });

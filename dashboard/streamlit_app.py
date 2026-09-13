@@ -12,8 +12,11 @@ import streamlit as st
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("driftlens.dashboard")
 
+# -----------------------------------------------------------------------------
+# High-End Dark Obsidian Theme (GitHub Next / Linear aesthetic)
+# -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="DriftLens — Document Intelligence & Semantic Drift",
+    page_title="DriftLens — Document Intelligence Dashboard",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -22,58 +25,93 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #f9fafb;
     }
     
+    .stApp {
+        background-color: #030712;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.08) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+            linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+        background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+    }
+
     .main-header {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.65));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 2.25rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+    }
+    
+    .metric-card-mona {
+        background: rgba(17, 24, 39, 0.65);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        padding: 1.5rem;
+        backdrop-filter: blur(16px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        transition: transform 0.2s ease;
     }
     
-    .badge-chip {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
+    .evidence-box-mona {
+        background: rgba(11, 15, 25, 0.8);
+        border-left: 3px solid #38bdf8;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0 12px 12px 0;
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        line-height: 1.65;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    
+    /* Tabs custom styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: rgba(17, 24, 39, 0.6);
+        padding: 6px;
         border-radius: 9999px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .badge-new { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
-    .badge-intensifying { background-color: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-    .badge-fading { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-disappeared { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-    .badge-stable { background-color: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
-
-    .metric-card {
-        background: rgba(30, 41, 59, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 1.25rem;
-        backdrop-filter: blur(8px);
     }
-    
-    .evidence-box {
-        background: rgba(15, 23, 42, 0.7);
-        border-left: 3px solid #3b82f6;
-        padding: 1rem 1.25rem;
-        border-radius: 0 8px 8px 0;
-        margin-top: 0.75rem;
-        font-size: 0.92rem;
-        line-height: 1.6;
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 9999px;
+        padding: 8px 18px;
+        color: #9ca3af;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.25));
+        color: #ffffff !important;
+        border: 1px solid rgba(56, 189, 248, 0.4);
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
+# -----------------------------------------------------------------------------
+# Data Loaders
+# -----------------------------------------------------------------------------
 DATA_DIRS = [
     Path("data/gold"),
     Path("../data/gold"),
@@ -118,11 +156,11 @@ def get_fallback_data(name: str) -> pd.DataFrame:
         ("0000019617", "JPM", "JPMorgan Chase & Co.", "Financials"),
     ]
     themes = [
-        (0, "AI Infrastructure & Model Reliability", 10, 2021, 2023, False),
-        (1, "Global Semiconductor Supply Chains", 8, 2019, 2023, False),
-        (2, "Cloud Data Security & Zero Trust", 9, 2019, 2023, False),
-        (3, "Cross-Border Regulatory Compliance & Export Controls", 7, 2020, 2023, False),
-        (4, "Pandemic & Workforce Disruption", 10, 2020, 2022, False),
+        (0, "AI Infrastructure & Frontier Model Safety", 10, 2021, 2023, False),
+        (1, "Advanced Semiconductor Foundry Constraints", 8, 2019, 2023, False),
+        (2, "Cloud Data Privacy & Cross-Border Sovereignty", 9, 2019, 2023, False),
+        (3, "Cross-Border Regulatory & Export Controls", 7, 2020, 2023, False),
+        (4, "Pandemic & Global Workforce Disruption", 10, 2020, 2022, False),
         (5, "Clean Energy Transition & Scope Disclosures", 6, 2021, 2023, False),
         (6, "Interest Rate & Liquidity Exposure", 5, 2022, 2023, False),
     ]
@@ -244,14 +282,17 @@ df_explanations = load_table("explanations")
 df_evidence = load_table("evidence_chunks")
 df_quality = load_table("data_quality")
 
+# -----------------------------------------------------------------------------
+# Sidebar
+# -----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🔍 **DriftLens**")
-    st.caption("Semantic Drift & Document Intelligence Engine")
+    st.caption("Document Semantic Drift & Intelligence Engine")
     st.divider()
 
     st.markdown(
         """
-        **System Architecture**
+        **Architecture Summary**
         - **Pipeline:** Offline Batch Embeddings + UMAP/HDBSCAN
         - **Inference Cost:** **$0.00 / month** (Static Parquet Artifacts)
         - **Drift Metric:** YoY Intensity Delta × Centroid Drift Cosine
@@ -263,7 +304,7 @@ with st.sidebar:
     if status_dir:
         st.success(f"✓ Data source: `{status_dir}`")
     else:
-        st.info("ℹ️ Running in interactive demo mode")
+        st.info("⚡ Running interactive demo mode")
 
     st.markdown(
         """
@@ -273,21 +314,27 @@ with st.sidebar:
         """
     )
 
+# -----------------------------------------------------------------------------
+# Main Content Tabs
+# -----------------------------------------------------------------------------
 tab_overview, tab_explorer, tab_deepdive, tab_quality, tab_human = st.tabs([
     "📊 Corpus Overview",
     "⚡ Theme Explorer",
     "🏢 Company Deep-Dive",
     "🛡️ Data Quality & Health",
-    "✍️ Human-in-the-Loop Review"
+    "✍️ Human-in-the-Loop"
 ])
 
+# -----------------------------------------------------------------------------
+# TAB 1: Corpus Overview
+# -----------------------------------------------------------------------------
 with tab_overview:
     st.markdown(
         """
         <div class="main-header">
-            <h1 style="margin:0; font-size:2rem; font-weight:700; color:#f8fafc;">Corpus Semantic Drift Intelligence</h1>
-            <p style="margin:0.5rem 0 0 0; color:#94a3b8; font-size:1.05rem;">
-                Tracking semantic shifts, newly emergent disclosures, and structural phrasing evolution across versioned document histories.
+            <h1 style="margin:0; font-size:2.25rem; font-weight:800; color:#ffffff; letter-spacing:-0.03em;">Corpus Semantic Drift Intelligence</h1>
+            <p style="margin:0.75rem 0 0 0; color:#9ca3af; font-size:1.1rem; line-height:1.6;">
+                Tracking high-dimensional cluster trajectories, newly emergent disclosures, and structural phrasing evolution across versioned document histories.
             </p>
         </div>
         """,
@@ -305,9 +352,9 @@ with tab_overview:
     with c2:
         st.metric("Discovered Themes", f"{n_themes} Clusters")
     with c3:
-        st.metric("Indexed Text Chunks", f"{total_chunks:,}")
+        st.metric("Indexed Chunks", f"{total_chunks:,}")
     with c4:
-        st.metric("Avg Extraction Rate", avg_success)
+        st.metric("Avg Parse Rate", avg_success)
 
     st.markdown("---")
 
@@ -317,23 +364,34 @@ with tab_overview:
         st.subheader("Discovered Themes by Cross-Corpus Prevalence")
         if not df_themes.empty:
             chart = alt.Chart(df_themes).mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6).encode(
-                x=alt.X("n_companies_ever:Q", title="Number of Companies Disclosing Theme"),
+                x=alt.X("n_companies_ever:Q", title="Number of Disclosing Entities"),
                 y=alt.Y("label:N", sort="-x", title=None),
-                color=alt.Color("n_companies_ever:Q", scale=alt.Scale(scheme="blues"), legend=None),
+                color=alt.Color("n_companies_ever:Q", scale=alt.Scale(scheme="tealblues"), legend=None),
                 tooltip=["label", "n_companies_ever", "first_seen_year", "last_seen_year"]
-            ).properties(height=320)
+            ).properties(height=340)
             st.altair_chart(chart, use_container_width=True)
 
     with col_right:
-        st.subheader("Corpus Growth Across Fiscal Versions")
+        st.subheader("Indexed Corpus Growth Across Versions")
         if not df_quality.empty:
-            growth_chart = alt.Chart(df_quality).mark_line(point=True, color="#38bdf8").encode(
+            growth_chart = alt.Chart(df_quality).mark_area(
+                line={'color':'#38bdf8'},
+                color=alt.Gradient(
+                    gradient='linear',
+                    stops=[alt.GradientStop(color='#38bdf8', offset=0),
+                           alt.GradientStop(color='rgba(56, 189, 248, 0)', offset=1)],
+                    x1=1, x2=1, y1=1, y2=0
+                )
+            ).encode(
                 x=alt.X("fiscal_year:O", title="Fiscal Year"),
-                y=alt.Y("total_chunks:Q", title="Total Paragraph Chunks"),
+                y=alt.Y("total_chunks:Q", title="Paragraph Chunks"),
                 tooltip=["fiscal_year", "total_chunks", "total_filings"]
-            ).properties(height=320)
+            ).properties(height=340)
             st.altair_chart(growth_chart, use_container_width=True)
 
+# -----------------------------------------------------------------------------
+# TAB 2: Theme Explorer
+# -----------------------------------------------------------------------------
 with tab_explorer:
     st.subheader("Material Change & Drift Detection Explorer")
     st.caption("Ranked by Materiality Score: abs(YoY Δ Intensity) × log(1 + paragraph_count)")
@@ -344,12 +402,12 @@ with tab_explorer:
     f1, f2, f3 = st.columns(3)
     with f1:
         sectors = ["All"] + sorted(list(df_companies["sector"].dropna().unique())) if not df_companies.empty else ["All"]
-        sec_choice = st.selectbox("Filter Sector", sectors)
+        sec_choice = st.selectbox("Sector Filter", sectors)
     with f2:
         change_types = ["All"] + list(df_changes["change_type"].unique()) if not df_changes.empty else ["All"]
         type_choice = st.selectbox("Change Classification", change_types)
     with f3:
-        sort_choice = st.selectbox("Sort Order", ["Materiality Score (Desc)", "Centroid Drift (Desc)", "YoY Delta (Desc)"])
+        sort_choice = st.selectbox("Sort Metric", ["Materiality Score (Desc)", "Centroid Drift (Desc)", "YoY Delta (Desc)"])
 
     filtered = df_merged.copy()
     if sec_choice != "All":
@@ -369,7 +427,7 @@ with tab_explorer:
         filtered[display_cols].rename(columns={
             "ticker": "Ticker",
             "name": "Company",
-            "label": "Theme Label",
+            "label": "Theme Cluster",
             "fiscal_year": "Year",
             "change_type": "Change Type",
             "intensity_delta": "Δ Intensity",
@@ -380,10 +438,10 @@ with tab_explorer:
         height=380,
     )
 
-    st.markdown("### 🔎 Inspect Grounded Explanation & Evidence Excerpt")
+    st.markdown("### 🔎 Grounded Explanation & Evidence Excerpt")
     if not filtered.empty:
         selected_idx = st.selectbox(
-            "Select an event from the filtered table:",
+            "Select an event to inspect source excerpts:",
             range(min(20, len(filtered))),
             format_func=lambda i: f"{filtered.iloc[i]['ticker']} — {filtered.iloc[i]['label']} ({filtered.iloc[i]['fiscal_year']})"
         )
@@ -413,12 +471,15 @@ with tab_explorer:
             st.markdown("**Grounded Excerpts (Primary Source Verification):**")
             for _, ev in ev_matches.iterrows():
                 st.markdown(f"""
-                <div class="evidence-box">
-                    <small style="color:#60a5fa; font-weight:600;">{ev.get('char_start_note', 'Item 1A Section Excerpt')}</small><br/>
+                <div class="evidence-box-mona">
+                    <small style="color:#38bdf8; font-weight:700; text-transform:uppercase;">{ev.get('char_start_note', 'Item 1A Section Excerpt')}</small><br/>
                     <em>"{ev['text']}"</em>
                 </div>
                 """, unsafe_allow_html=True)
 
+# -----------------------------------------------------------------------------
+# TAB 3: Company Deep-Dive
+# -----------------------------------------------------------------------------
 with tab_deepdive:
     st.subheader("Company Temporal Disclosure Profile")
     if not df_companies.empty:
@@ -430,7 +491,7 @@ with tab_deepdive:
 
         if not comp_intensity.empty:
             st.markdown("#### Theme Intensity Heatmap Over Fiscal Years")
-            heatmap = alt.Chart(comp_intensity).mark_rect(cornerRadius=4).encode(
+            heatmap = alt.Chart(comp_intensity).mark_rect(cornerRadius=6).encode(
                 x=alt.X("fiscal_year:O", title="Fiscal Year"),
                 y=alt.Y("label:N", title="Theme Cluster", sort="-color"),
                 color=alt.Color("intensity:Q", scale=alt.Scale(scheme="tealblues"), title="Intensity (% of sections)"),
@@ -448,6 +509,9 @@ with tab_deepdive:
             use_container_width=True
         )
 
+# -----------------------------------------------------------------------------
+# TAB 4: Data Quality & Health
+# -----------------------------------------------------------------------------
 with tab_quality:
     st.subheader("Data Pipeline Reliability & Parse Quality")
     st.caption("Complete transparency regarding HTML parsing accuracy, unassigned noise points, and document coverage.")
@@ -461,7 +525,7 @@ with tab_quality:
                 y=alt.Y("extraction_success_rate:Q", title="Success Rate", scale=alt.Scale(domain=[0.8, 1.0]), axis=alt.Axis(format="%")),
                 tooltip=["fiscal_year", alt.Tooltip("extraction_success_rate:Q", format=".1%"), "failed_extractions"]
             ).properties(height=280)
-            rule = alt.Chart(pd.DataFrame({'y': [0.85]})).mark_rule(color='red', strokeDash=[4, 4]).encode(y='y:Q')
+            rule = alt.Chart(pd.DataFrame({'y': [0.85]})).mark_rule(color='#f43f5e', strokeDash=[4, 4]).encode(y='y:Q')
             st.altair_chart(rate_chart + rule, use_container_width=True)
 
         with q_col2:
@@ -473,15 +537,9 @@ with tab_quality:
             ).properties(height=280)
             st.altair_chart(noise_chart, use_container_width=True)
 
-        st.dataframe(df_quality.rename(columns={
-            "fiscal_year": "Year",
-            "extraction_success_rate": "Success Rate",
-            "noise_fraction": "Noise Fraction",
-            "total_chunks": "Parsed Chunks",
-            "total_filings": "Filings Ingested",
-            "failed_extractions": "Extraction Failures"
-        }), use_container_width=True)
-
+# -----------------------------------------------------------------------------
+# TAB 5: Human-in-the-Loop Review
+# -----------------------------------------------------------------------------
 with tab_human:
     st.subheader("Human-in-the-Loop Verification & Label Overrides")
     st.caption("Review auto-generated cluster labels and provide corrective feedback.")

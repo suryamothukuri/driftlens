@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Live Interactive Engine](https://suryamothukuri.github.io/driftlens/) · [Source Code](https://github.com/suryamothukuri/driftlens)
+[Live Interactive Engine](https://suryamothukuri.github.io/driftlens/) · [Streamlit Dashboard](https://driftlens-dashboard.streamlit.app/) · [Source Code](https://github.com/suryamothukuri/driftlens)
 
 ---
 

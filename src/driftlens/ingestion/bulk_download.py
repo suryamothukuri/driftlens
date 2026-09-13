@@ -313,45 +313,54 @@ def _extract_from_zip(zip_path: Path, cik: str, prefix: str) -> dict:
 
 
 def get_10k_filings_for_cik(
-    client: EdgarClient,
-    cik: str,
-    submissions_zip: Path,
-    years: int = 5,
+    client_or_submissions: Any = None,
+    cik: str = "",
+    submissions_zip: Path | None = None,
+    years: Any = 5,
 ) -> list[dict]:
-    """Return a filtered, sorted list of 10-K filings for the given CIK.
+    """Return a list of 10-K filing metadata dicts for a given company.
 
-    Loads submission data from the bulk ZIP (falling back to the live API
-    if the ZIP is not provided or the CIK is absent).
-
-    Parameters
-    ----------
-    client:
-        Configured :class:`~driftlens.ingestion.edgar_client.EdgarClient`.
-    cik:
-        Company CIK (string or int).
-    submissions_zip:
-        Path to the ``submissions.zip`` bulk archive.
-    years:
-        How many calendar years back to include.  Only filings whose
-        ``filingDate`` is within the last *years* years are returned.
-
-    Returns
-    -------
-    list[dict]
-        Each item contains::
-
-            {
-                "accession_number": str,   # dashes normalised, e.g. "0001193125-20-123456"
-                "filing_date":      str,   # ISO-8601 date string
-                "fiscal_year":      int,   # calendar year derived from filing_date
-                "report_date":      str,   # period of report (ISO-8601 date string)
-                "primary_document": str,   # filename of the primary HTML/HTM document
-            }
-
-        Sorted by ``fiscal_year`` descending (most-recent first).
+    Accepts either (client, cik, submissions_zip, years) or (submissions_dict, years=years).
     """
+    if isinstance(client_or_submissions, dict):
+        # Called directly with submissions dictionary
+        data = client_or_submissions
+        recent = data.get("filings", {}).get("recent", {})
+        if not recent:
+            return []
+        
+        target_years = years if isinstance(years, (list, tuple, set)) else None
+        form_list = recent.get("form", [])
+        accession_list = recent.get("accessionNumber", [])
+        filing_date_list = recent.get("filingDate", [])
+        report_date_list = recent.get("reportDate", [])
+        primary_doc_list = recent.get("primaryDocument", [])
+
+        results = []
+        for form, accession, filing_date_str, report_date_str, primary_doc in zip(
+            form_list, accession_list, filing_date_list, report_date_list, primary_doc_list
+        ):
+            if form != "10-K":
+                continue
+            f_year = int(filing_date_str[:4]) if filing_date_str else 0
+            if target_years and f_year not in target_years:
+                continue
+            results.append({
+                "accession": accession,
+                "accession_number": accession,
+                "form": form,
+                "filing_date": filing_date_str,
+                "primary_doc": primary_doc,
+                "primary_document": primary_doc,
+                "report_date": report_date_str,
+                "fiscal_year": f_year,
+            })
+        return results
+
+    client = client_or_submissions
     padded_cik = _pad_cik(cik)
-    cutoff: date = date.today().replace(year=date.today().year - years)
+    num_years = years if isinstance(years, int) else 5
+    cutoff: date = date.today().replace(year=date.today().year - num_years)
 
     # --- load submission data ------------------------------------------------
     data = _load_submissions(client, cik=padded_cik, submissions_zip=submissions_zip)
@@ -360,8 +369,6 @@ def get_10k_filings_for_cik(
     filings_section: dict = data.get("filings", {})
     recent: dict = filings_section.get("recent", {})
 
-    # Guard: the API returns parallel arrays under keys like
-    # "accessionNumber", "filingDate", "form", etc.
     if not recent:
         logger.warning("No recent filings found for CIK %s", padded_cik)
         return []
@@ -394,10 +401,13 @@ def get_10k_filings_for_cik(
 
         results.append(
             {
-                "accession_number": accession,  # keep original dashes
+                "accession": accession,
+                "accession_number": accession,
+                "form": form,
                 "filing_date": filing_date_str,
                 "fiscal_year": filing_date_obj.year,
                 "report_date": report_date_str,
+                "primary_doc": primary_doc,
                 "primary_document": primary_doc,
             }
         )
@@ -407,7 +417,7 @@ def get_10k_filings_for_cik(
         "Found %d 10-K filings for CIK %s in the last %d years",
         len(results),
         padded_cik,
-        years,
+        num_years,
     )
     return results
 

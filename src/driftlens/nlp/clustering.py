@@ -23,12 +23,17 @@ class ThemeClusterer:
         hdbscan_min_cluster_size: int = 20,
         hdbscan_min_samples: int = 5,
         random_state: int = 42,
+        min_cluster_size: Optional[int] = None,
+        min_samples: Optional[int] = None,
+        **kwargs: Any,
     ) -> None:
         self.umap_components = umap_components
         self.umap_metric = umap_metric
         self.umap_n_neighbors = umap_n_neighbors
-        self.hdbscan_min_cluster_size = hdbscan_min_cluster_size
-        self.hdbscan_min_samples = hdbscan_min_samples
+        self.hdbscan_min_cluster_size = min_cluster_size if min_cluster_size is not None else hdbscan_min_cluster_size
+        self.hdbscan_min_samples = min_samples if min_samples is not None else hdbscan_min_samples
+        self.min_cluster_size = self.hdbscan_min_cluster_size
+        self.min_samples = self.hdbscan_min_samples
         self.random_state = random_state
 
         self.umap_model: Optional[umap.UMAP] = None

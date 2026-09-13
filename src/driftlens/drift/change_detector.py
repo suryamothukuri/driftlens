@@ -11,6 +11,30 @@ from sklearn.metrics.pairwise import cosine_distances
 logger = logging.getLogger("driftlens.drift.change_detector")
 
 
+def compute_materiality(delta: float, chunk_count: int) -> float:
+    """materiality = abs(delta) * log(1 + chunk_count)"""
+    return float(abs(delta) * np.log1p(chunk_count))
+
+
+def classify_change_type(
+    intensity_prev: Optional[float],
+    intensity_curr: Optional[float],
+    delta: float,
+    intensifying_threshold: float = 0.02,
+    fading_threshold: float = -0.02,
+) -> str:
+    """Classify year-over-year change type."""
+    if intensity_prev is None or (isinstance(intensity_prev, float) and np.isnan(intensity_prev)) or intensity_prev == 0.0:
+        return "new"
+    if intensity_curr is None or (isinstance(intensity_curr, float) and np.isnan(intensity_curr)) or intensity_curr == 0.0:
+        return "disappeared"
+    if delta > intensifying_threshold:
+        return "intensifying"
+    if delta < fading_threshold:
+        return "fading"
+    return "stable"
+
+
 def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
     """Computes Year-over-Year changes, classification, and calibrated materiality scores."""
     if intensity_df is None or intensity_df.empty:
@@ -19,19 +43,28 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
                 "cik",
                 "cluster_id",
                 "fiscal_year",
+                "year",
                 "intensity",
                 "prev_intensity",
                 "intensity_delta",
+                "delta",
                 "chunk_count",
                 "materiality_score",
+                "materiality",
                 "change_type",
                 "first_appearance",
                 "disappeared",
             ]
         )
 
+    df = intensity_df.copy()
+    if "fiscal_year" not in df.columns and "year" in df.columns:
+        df["fiscal_year"] = df["year"]
+    if "intensity" not in df.columns and "chunk_count" in df.columns and "total_chunks" in df.columns:
+        df["intensity"] = df["chunk_count"] / df["total_chunks"]
+
     records = []
-    df_sorted = intensity_df.sort_values(["cik", "cluster_id", "fiscal_year"])
+    df_sorted = df.sort_values(["cik", "cluster_id", "fiscal_year"])
 
     for (cik, cluster_id), group in df_sorted.groupby(["cik", "cluster_id"]):
         group = group.reset_index(drop=True)
@@ -76,11 +109,14 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
                 "cik": str(cik),
                 "cluster_id": int(cluster_id),
                 "fiscal_year": year,
+                "year": year,
                 "intensity": float(curr_intensity),
                 "prev_intensity": float(prev_intensity),
                 "intensity_delta": float(intensity_delta),
+                "delta": float(intensity_delta),
                 "chunk_count": curr_count,
                 "materiality_score": float(materiality_score),
+                "materiality": float(materiality_score),
                 "change_type": change_type,
                 "first_appearance": first_appearance,
                 "disappeared": disappeared,

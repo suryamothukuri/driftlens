@@ -34,39 +34,42 @@ NOISE_CLUSTER_ID: int = -1  # HDBSCAN / DBSCAN noise label; always excluded
 # ---------------------------------------------------------------------------
 
 
+def compute_materiality(delta: float, chunk_count: int) -> float:
+    """materiality = abs(delta) * log(1 + chunk_count)"""
+    return float(abs(delta) * np.log1p(chunk_count))
+
+
+def classify_change_type(
+    intensity_prev: Optional[float],
+    intensity_curr: Optional[float],
+    delta: float,
+    intensifying_threshold: float = 0.02,
+    fading_threshold: float = -0.02,
+) -> str:
+    """Classify year-over-year change type."""
+    if intensity_prev is None or (isinstance(intensity_prev, float) and np.isnan(intensity_prev)) or intensity_prev == 0.0:
+        return "new"
+    if intensity_curr is None or (isinstance(intensity_curr, float) and np.isnan(intensity_curr)) or intensity_curr == 0.0:
+        return "disappeared"
+    if delta > intensifying_threshold:
+        return "intensifying"
+    if delta < fading_threshold:
+        return "fading"
+    return "stable"
+
+
 def compute_intensity(
-    chunks_df: pd.DataFrame,
-    labels: dict[int, str],
-) -> pd.DataFrame:
-    """Compute per-(cik, fiscal_year, cluster_id) intensity scores.
+    chunks_df: Any,
+    labels: Any = None,
+) -> Any:
+    """Compute intensity as scalar fraction or per-(cik, fiscal_year, cluster_id) DataFrame."""
+    if isinstance(chunks_df, (int, float, np.number)) or not isinstance(chunks_df, pd.DataFrame):
+        chunk_count = float(chunks_df)
+        total_chunks = float(labels) if labels is not None else 0.0
+        if total_chunks == 0:
+            return 0.0
+        return float(chunk_count / total_chunks)
 
-    Parameters
-    ----------
-    chunks_df:
-        DataFrame with at minimum the columns:
-            chunk_id         – unique identifier for each text chunk
-            cik              – SEC Central Index Key (company identifier)
-            fiscal_year      – integer fiscal year (e.g. 2023)
-            accession_number – SEC filing accession number
-            cluster_id       – integer cluster label from the clustering step
-
-    labels:
-        Mapping from ``cluster_id`` (int) to human-readable theme name (str).
-        The noise cluster (``-1``) need not be present.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``cik``, ``fiscal_year``, ``cluster_id``, ``cluster_label``,
-        ``chunk_count``, ``total_chunks``, ``intensity``, ``is_present``.
-        Rows for the noise cluster are excluded.
-        Rows are sorted by (cik, fiscal_year, cluster_id).
-
-    Raises
-    ------
-    ValueError
-        If required columns are missing from *chunks_df*.
-    """
     required_cols = {"chunk_id", "cik", "fiscal_year", "accession_number", "cluster_id"}
     _validate_columns(chunks_df, required_cols, context="compute_intensity")
 

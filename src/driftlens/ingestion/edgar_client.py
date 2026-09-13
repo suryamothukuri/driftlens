@@ -115,6 +115,7 @@ class EdgarClient:
 
         # Requests session
         self._session: requests.Session = session or requests.Session()
+        self.session = self._session
         self._session.headers.update(
             {
                 "User-Agent": self.user_agent,

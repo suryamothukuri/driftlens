@@ -39,18 +39,18 @@ def is_grammatical_prose(text: str, min_words: int = 15) -> bool:
     words = text.strip().split()
     if len(words) < min_words:
         return False
-    
+
     # Check word/symbol ratio (reject pure numbers/tables)
     alpha_words = [w for w in words if re.search(r"[a-zA-Z]", w)]
     if len(alpha_words) / len(words) < 0.65:
         return False
-    
+
     # Must contain common English stopwords/structure
     common_markers = {"the", "and", "to", "of", "in", "a", "is", "that", "for", "our", "we", "by", "as", "with"}
     lower_words = {w.lower() for w in words}
     if len(lower_words.intersection(common_markers)) < 3:
         return False
-        
+
     return True
 
 def clean_text(text: str) -> str:

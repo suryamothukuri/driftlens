@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import pandas as pd
 
@@ -68,9 +68,9 @@ def _tfidf_keywords(chunks: list[str], n: int = 3) -> str:
             ngram_range=(1, 2),
             min_df=1,
         )
-        X = vectorizer.fit_transform(chunks)
+        dtm = vectorizer.fit_transform(chunks)
         # Sum counts across documents to get corpus-level frequency.
-        freq = X.sum(axis=0).A1
+        freq = dtm.sum(axis=0).A1
         vocab = vectorizer.get_feature_names_out()
         top_indices = freq.argsort()[::-1][:n]
         keywords = [vocab[i] for i in top_indices]

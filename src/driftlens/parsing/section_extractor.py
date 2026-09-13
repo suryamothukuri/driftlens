@@ -2,11 +2,9 @@
 
 import logging
 import re
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from bs4 import BeautifulSoup
-import pandas as pd
 
 logger = logging.getLogger("driftlens.parsing.section_extractor")
 

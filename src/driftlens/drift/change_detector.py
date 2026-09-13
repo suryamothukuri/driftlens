@@ -1,7 +1,8 @@
 """Change detection with Wasserstein distribution distance, vectorized permutation tests, and boilerplate convergence index."""
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import List
+
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
@@ -9,11 +10,12 @@ from sklearn.metrics.pairwise import cosine_distances
 
 logger = logging.getLogger("driftlens.drift.change_detector")
 
+
 def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
     """Computes Year-over-Year changes, classification, and calibrated materiality scores."""
     records = []
     df_sorted = intensity_df.sort_values(["cik", "cluster_id", "fiscal_year"])
-    
+
     for (cik, cluster_id), group in df_sorted.groupby(["cik", "cluster_id"]):
         group = group.reset_index(drop=True)
         for i in range(len(group)):
@@ -21,7 +23,7 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
             year = int(row["fiscal_year"])
             curr_intensity = float(row["intensity"])
             curr_count = int(row["chunk_count"])
-            
+
             if i == 0:
                 prev_intensity = 0.0
                 intensity_delta = curr_intensity

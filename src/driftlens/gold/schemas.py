@@ -1,7 +1,6 @@
 """Pandera validation schemas for DriftLens Gold Parquet tables."""
 
 import pandera as pa
-from pandera.typing import DataFrame, Series
 
 companies_schema = pa.DataFrameSchema({
     "cik": pa.Column(str, nullable=False),

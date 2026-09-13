@@ -2,7 +2,7 @@
 
 import re
 import unicodedata
-from typing import List
+
 
 def normalize_whitespace(text: str) -> str:
     """Collapses redundant whitespace while preserving paragraph boundaries."""

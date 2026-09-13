@@ -38,12 +38,12 @@ import pyarrow.parquet as pq
 
 from .schemas import (
     companies_schema,
-    themes_schema,
-    theme_intensity_schema,
-    theme_changes_schema,
-    explanations_schema,
-    evidence_chunks_schema,
     data_quality_schema,
+    evidence_chunks_schema,
+    explanations_schema,
+    theme_changes_schema,
+    theme_intensity_schema,
+    themes_schema,
 )
 
 logger = logging.getLogger(__name__)

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
+
 # Find project root by walking up
 def find_project_root() -> Path:
     curr = Path(__file__).resolve().parent

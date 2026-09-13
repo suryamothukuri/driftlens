@@ -23,6 +23,7 @@ class SectionExtractor:
 
     BOUNDARY_PATTERNS = [
         re.compile(r"item\s+1b\.?\s*[:\-–—]?\s*unresolved\s+staff\s+comments", re.IGNORECASE),
+        re.compile(r"item\s+1b\.?", re.IGNORECASE),
         re.compile(r"item\s+1c\.?\s*[:\-–—]?\s*cybersecurity", re.IGNORECASE),
         re.compile(r"item\s+2\.?\s*[:\-–—]?\s*properties", re.IGNORECASE),
         re.compile(r"item\s+3\.?\s*[:\-–—]?\s*legal\s+proceedings", re.IGNORECASE),
@@ -42,6 +43,11 @@ class SectionExtractor:
         for tag in soup(["script", "style", "header", "footer"]):
             tag.decompose()
 
+        # Decompose TOC anchor links so they don't get selected as the section heading
+        for a in soup.find_all("a", href=re.compile(r"^#")):
+            if re.search(r"item\s+1a", a.get_text(), re.IGNORECASE):
+                a.decompose()
+
         full_text = soup.get_text(separator="\n")
 
         # 2. Match Heading
@@ -49,6 +55,8 @@ class SectionExtractor:
         for pat in self.ITEM_1A_PATTERNS:
             for m in pat.finditer(full_text):
                 matches.append(m)
+
+        matches.sort(key=lambda m: m.start())
 
         if not matches:
             return {
@@ -58,11 +66,12 @@ class SectionExtractor:
                 "is_ixbrl": is_ixbrl,
                 "extraction_method": "none",
                 "failure_reason": "ITEM_1A_HEADING_NOT_FOUND",
+                "error": "ITEM_1A_HEADING_NOT_FOUND",
             }
 
-        # 3. Skip TOC anchor links (if first match is very early in text and another match exists)
+        # 3. If multiple matches, select the section start (skip early TOC residual if present)
         selected_match = matches[0]
-        if len(matches) > 1 and selected_match.start() < len(full_text) * 0.40:
+        if len(matches) > 1 and selected_match.start() < len(full_text) * 0.30:
             selected_match = matches[1]
 
         start_pos = selected_match.end()
@@ -83,12 +92,13 @@ class SectionExtractor:
 
         if len(extracted_text) < 30:
             return {
-                "text": extracted_text,
+                "text": extracted_text if len(extracted_text) > 0 else "",
                 "success": False,
                 "char_count": len(extracted_text),
                 "is_ixbrl": is_ixbrl,
                 "extraction_method": "ixbrl_fallback" if is_ixbrl else "legacy_html_fallback",
                 "failure_reason": "EXTRACTED_SECTION_TOO_SHORT",
+                "error": "EXTRACTED_SECTION_TOO_SHORT",
             }
 
         return {
@@ -98,6 +108,7 @@ class SectionExtractor:
             "is_ixbrl": is_ixbrl,
             "extraction_method": "ixbrl_boundary" if is_ixbrl else "legacy_html_boundary",
             "failure_reason": None,
+            "error": None,
         }
 
 

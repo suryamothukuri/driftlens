@@ -175,6 +175,25 @@ const state = {
   }
 };
 
+function autoResizeCanvas(canvas, ctx) {
+  if (!canvas) return { w: 0, h: 0 };
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.offsetWidth;
+  const h = canvas.offsetHeight;
+  if (!w || !h) return { w: 0, h: 0 };
+
+  const targetW = Math.floor(w * dpr);
+  const targetH = Math.floor(h * dpr);
+
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW;
+    canvas.height = targetH;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+  }
+  return { w, h };
+}
+
 function switchView(viewName) {
   state.currentView = viewName;
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -207,13 +226,13 @@ function initDriftBot() {
     const cy = rect.top + rect.height / 2;
     const dx = (e.clientX - cx) / window.innerWidth;
     const dy = (e.clientY - cy) / window.innerHeight;
-    eye.style.transform = `translate(${dx * 8}px, ${dy * 4}px)`;
+    if (eye) eye.style.transform = `translate(${dx * 8}px, ${dy * 4}px)`;
   });
 
   avatar.addEventListener('click', () => {
-    beam.classList.add('active');
+    if (beam) beam.classList.add('active');
     triggerBotSpeech("Running 10-year Wasserstein distribution drift scan across 50+ filers...");
-    setTimeout(() => beam.classList.remove('active'), 2500);
+    setTimeout(() => { if (beam) beam.classList.remove('active'); }, 2500);
   });
 }
 
@@ -240,13 +259,6 @@ function initHeroCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  resize();
-
   const snippets = [
     "ITEM 1A. RISK FACTORS",
     "FORM 10-K (2016-2025)",
@@ -262,25 +274,27 @@ function initHeroCanvas() {
   for (let i = 0; i < 20; i++) {
     particles.push({
       text: snippets[i % snippets.length],
-      x: Math.random() * canvas.offsetWidth,
-      y: Math.random() * canvas.offsetHeight,
+      x: Math.random() * 1000,
+      y: Math.random() * 400,
       speedY: -0.25 - Math.random() * 0.35,
       alpha: 0.15 + Math.random() * 0.35
     });
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
-    ctx.font = "500 11px JetBrains Mono, monospace";
+    const { w, h } = autoResizeCanvas(canvas, ctx);
+    if (w > 0 && h > 0) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.font = "500 11px JetBrains Mono, monospace";
 
-    particles.forEach(p => {
-      p.y += p.speedY;
-      if (p.y < -20) p.y = canvas.offsetHeight + 20;
+      particles.forEach(p => {
+        p.y += p.speedY;
+        if (p.y < -20) p.y = h + 20;
 
-      ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
-      ctx.fillText(p.text, p.x, p.y);
-    });
-
+        ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+        ctx.fillText(p.text, p.x % w, p.y);
+      });
+    }
     requestAnimationFrame(draw);
   }
   draw();
@@ -293,14 +307,6 @@ function initDriftCanvas() {
   const canvas = document.getElementById('drift-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  resize();
-  window.addEventListener('resize', resize);
 
   const clusters = [
     { name: 'AI & Frontier Models (Emergent 2021-2025)', x: 0.26, y: 0.32, color: '#38bdf8', count: 24 },
@@ -328,50 +334,51 @@ function initDriftCanvas() {
   let animTime = 0;
   function draw() {
     animTime += 0.015;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    ctx.clearRect(0, 0, w, h);
+    const { w, h } = autoResizeCanvas(canvas, ctx);
+    if (w > 0 && h > 0) {
+      ctx.clearRect(0, 0, w, h);
 
-    // Draw cluster bounds / halos
-    clusters.forEach(cl => {
-      const grad = ctx.createRadialGradient(cl.x * w, cl.y * h, 10, cl.x * w, cl.y * h, 85);
-      grad.addColorStop(0, cl.color + '1a');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(cl.x * w, cl.y * h, 85, 0, Math.PI * 2);
-      ctx.fill();
+      // Draw cluster bounds / halos
+      clusters.forEach(cl => {
+        const grad = ctx.createRadialGradient(cl.x * w, cl.y * h, 10, cl.x * w, cl.y * h, 85);
+        grad.addColorStop(0, cl.color + '1a');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cl.x * w, cl.y * h, 85, 0, Math.PI * 2);
+        ctx.fill();
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.font = '600 12px Plus Jakarta Sans, sans-serif';
-      ctx.fillText(cl.name, cl.x * w - 60, cl.y * h - 55);
-    });
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = '600 12px Plus Jakarta Sans, sans-serif';
+        ctx.fillText(cl.name, cl.x * w - 60, cl.y * h - 55);
+      });
 
-    // Draw particles & trajectories across 10-year factor (2016-2025)
-    particles.forEach(p => {
-      const cl = clusters[p.clusterIdx];
-      const yearFactor = (state.activeYear - 2016) / 9.0;
-      
-      const px = (p.baseX + p.driftSpeedX * yearFactor + Math.sin(animTime + p.phase) * 0.012) * w;
-      const py = (p.baseY + p.driftSpeedY * yearFactor + Math.cos(animTime + p.phase) * 0.012) * h;
+      // Draw particles & trajectories across 10-year factor (2016-2025)
+      particles.forEach(p => {
+        const cl = clusters[p.clusterIdx];
+        const yearFactor = (state.activeYear - 2016) / 9.0;
+        
+        const px = (p.baseX + p.driftSpeedX * yearFactor + Math.sin(animTime + p.phase) * 0.012) * w;
+        const py = (p.baseY + p.driftSpeedY * yearFactor + Math.cos(animTime + p.phase) * 0.012) * h;
 
-      // History Trail
-      ctx.beginPath();
-      ctx.moveTo(p.baseX * w, p.baseY * h);
-      ctx.lineTo(px, py);
-      ctx.strokeStyle = cl.color + '33';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+        // History Trail
+        ctx.beginPath();
+        ctx.moveTo(p.baseX * w, p.baseY * h);
+        ctx.lineTo(px, py);
+        ctx.strokeStyle = cl.color + '33';
+        ctx.lineWidth = 1;
+        ctx.stroke();
 
-      // Dot
-      ctx.beginPath();
-      ctx.arc(px, py, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = cl.color;
-      ctx.shadowColor = cl.color;
-      ctx.shadowBlur = 10;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    });
+        // Dot
+        ctx.beginPath();
+        ctx.arc(px, py, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = cl.color;
+        ctx.shadowColor = cl.color;
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+    }
 
     requestAnimationFrame(draw);
   }
@@ -665,7 +672,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCompanyTimeline('0001045810');
 });
 
-
 // -----------------------------------------------------------------------------
 // Interactive Knowledge Graph Canvas ("Network of Things")
 // -----------------------------------------------------------------------------
@@ -674,31 +680,26 @@ function initNetworkCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  function resize() {
-    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
   const nodes = [
     // Theme Clusters
-    { id: 't0', label: 'AI Infrastructure', type: 'theme', x: 0.35, y: 0.35, r: 22, color: '#38bdf8' },
-    { id: 't1', label: 'Semiconductor Foundries', type: 'theme', x: 0.65, y: 0.30, r: 20, color: '#f59e0b' },
-    { id: 't2', label: 'Cloud Data Privacy', type: 'theme', x: 0.45, y: 0.70, r: 20, color: '#818cf8' },
-    { id: 't3', label: 'Export Controls', type: 'theme', x: 0.75, y: 0.68, r: 18, color: '#10b981' },
-    { id: 't4', label: 'Kernel OS Resiliency', type: 'theme', x: 0.20, y: 0.65, r: 18, color: '#f43f5e' },
+    { id: 't0', label: 'AI Infrastructure', type: 'theme', x: 0.35, y: 0.35, r: 24, color: '#38bdf8' },
+    { id: 't1', label: 'Semiconductor Foundries', type: 'theme', x: 0.65, y: 0.28, r: 22, color: '#f59e0b' },
+    { id: 't2', label: 'Cloud Data Privacy', type: 'theme', x: 0.45, y: 0.72, r: 22, color: '#818cf8' },
+    { id: 't3', label: 'Export Controls', type: 'theme', x: 0.76, y: 0.68, r: 20, color: '#10b981' },
+    { id: 't4', label: 'Kernel OS Resiliency', type: 'theme', x: 0.18, y: 0.65, r: 20, color: '#f43f5e' },
+    { id: 't5', label: 'Biologics API Sourcing', type: 'theme', x: 0.82, y: 0.42, r: 18, color: '#a855f7' },
 
     // Companies
-    { id: 'NVDA', label: 'NVDA', type: 'company', x: 0.52, y: 0.25, r: 14, color: '#fff' },
-    { id: 'AAPL', label: 'AAPL', type: 'company', x: 0.28, y: 0.22, r: 14, color: '#fff' },
-    { id: 'MSFT', label: 'MSFT', type: 'company', x: 0.40, y: 0.52, r: 14, color: '#fff' },
-    { id: 'GOOGL', label: 'GOOGL', type: 'company', x: 0.68, y: 0.50, r: 14, color: '#fff' },
-    { id: 'CRWD', label: 'CRWD', type: 'company', x: 0.16, y: 0.48, r: 14, color: '#fff' },
-    { id: 'TSLA', label: 'TSLA', type: 'company', x: 0.22, y: 0.30, r: 14, color: '#fff' },
-    { id: 'AVGO', label: 'AVGO', type: 'company', x: 0.82, y: 0.38, r: 14, color: '#fff' },
-    { id: 'PLTR', label: 'PLTR', type: 'company', x: 0.58, y: 0.60, r: 14, color: '#fff' }
+    { id: 'NVDA', label: 'NVDA', type: 'company', x: 0.52, y: 0.22, r: 15, color: '#ffffff' },
+    { id: 'AAPL', label: 'AAPL', type: 'company', x: 0.26, y: 0.20, r: 15, color: '#ffffff' },
+    { id: 'MSFT', label: 'MSFT', type: 'company', x: 0.38, y: 0.52, r: 15, color: '#ffffff' },
+    { id: 'GOOGL', label: 'GOOGL', type: 'company', x: 0.68, y: 0.48, r: 15, color: '#ffffff' },
+    { id: 'CRWD', label: 'CRWD', type: 'company', x: 0.14, y: 0.46, r: 15, color: '#ffffff' },
+    { id: 'TSLA', label: 'TSLA', type: 'company', x: 0.22, y: 0.32, r: 15, color: '#ffffff' },
+    { id: 'AVGO', label: 'AVGO', type: 'company', x: 0.80, y: 0.26, r: 15, color: '#ffffff' },
+    { id: 'PLTR', label: 'PLTR', type: 'company', x: 0.58, y: 0.60, r: 15, color: '#ffffff' },
+    { id: 'LLY', label: 'LLY', type: 'company', x: 0.88, y: 0.58, r: 15, color: '#ffffff' },
+    { id: 'BA', label: 'BA', type: 'company', x: 0.48, y: 0.84, r: 15, color: '#ffffff' }
   ];
 
   const edges = [
@@ -709,79 +710,180 @@ function initNetworkCanvas() {
     { from: 'CRWD', to: 't4' }, { from: 'CRWD', to: 't2' },
     { from: 'TSLA', to: 't0' }, { from: 'TSLA', to: 't1' },
     { from: 'AVGO', to: 't1' }, { from: 'AVGO', to: 't3' },
-    { from: 'PLTR', to: 't0' }, { from: 'PLTR', to: 't2' }
+    { from: 'PLTR', to: 't0' }, { from: 'PLTR', to: 't2' },
+    { from: 'LLY', to: 't5' }, { from: 'LLY', to: 't3' },
+    { from: 'BA', to: 't4' }, { from: 'BA', to: 't3' }
   ];
 
   let hoveredNode = null;
+  let draggedNode = null;
   let animTime = 0;
+
+  // Particle pulses traveling along edges
+  const edgeParticles = [];
+  for (let i = 0; i < 18; i++) {
+    edgeParticles.push({
+      edgeIdx: i % edges.length,
+      progress: Math.random(),
+      speed: 0.003 + Math.random() * 0.004
+    });
+  }
 
   function draw() {
     animTime += 0.02;
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    ctx.clearRect(0, 0, w, h);
+    const { w, h } = autoResizeCanvas(canvas, ctx);
+    if (w > 0 && h > 0) {
+      ctx.clearRect(0, 0, w, h);
 
-    // Draw connecting edges
-    edges.forEach(e => {
-      const n1 = nodes.find(n => n.id === e.from);
-      const n2 = nodes.find(n => n.id === e.to);
-      if (!n1 || !n2) return;
+      // Draw subtle grid lines
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.03)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < w; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = 0; y < h; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
 
-      const isHighlighted = (hoveredNode && (hoveredNode.id === n1.id || hoveredNode.id === n2.id));
+      // Draw connecting edges
+      edges.forEach((e, idx) => {
+        const n1 = nodes.find(n => n.id === e.from);
+        const n2 = nodes.find(n => n.id === e.to);
+        if (!n1 || !n2) return;
 
-      ctx.beginPath();
-      ctx.moveTo(n1.x * w, n1.y * h);
-      ctx.lineTo(n2.x * w, n2.y * h);
-      ctx.strokeStyle = isHighlighted ? 'rgba(56, 189, 248, 0.8)' : 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = isHighlighted ? 2 : 1;
-      ctx.stroke();
-    });
+        const isHighlighted = (hoveredNode && (hoveredNode.id === n1.id || hoveredNode.id === n2.id));
 
-    // Draw nodes
-    nodes.forEach(n => {
-      const nx = (n.x + Math.sin(animTime + n.r) * 0.004) * w;
-      const ny = (n.y + Math.cos(animTime + n.r) * 0.004) * h;
-      const isHovered = (hoveredNode && hoveredNode.id === n.id);
+        const x1 = n1.x * w;
+        const y1 = n1.y * h;
+        const x2 = n2.x * w;
+        const y2 = n2.y * h;
 
-      // Node Halo
-      ctx.beginPath();
-      ctx.arc(nx, ny, isHovered ? n.r * 1.5 : n.r * 1.2, 0, Math.PI * 2);
-      ctx.fillStyle = n.color + '1a';
-      ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = isHighlighted ? 'rgba(56, 189, 248, 0.85)' : 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = isHighlighted ? 2.5 : 1;
+        ctx.stroke();
+      });
 
-      // Core Node
-      ctx.beginPath();
-      ctx.arc(nx, ny, isHovered ? n.r * 1.2 : n.r, 0, Math.PI * 2);
-      ctx.fillStyle = n.type === 'company' ? '#0f172a' : n.color;
-      ctx.strokeStyle = n.color;
-      ctx.lineWidth = 2;
-      ctx.fill();
-      ctx.stroke();
+      // Draw traveling edge pulses
+      edgeParticles.forEach(ep => {
+        const e = edges[ep.edgeIdx];
+        if (!e) return;
+        const n1 = nodes.find(n => n.id === e.from);
+        const n2 = nodes.find(n => n.id === e.to);
+        if (!n1 || !n2) return;
 
-      // Label
-      ctx.fillStyle = isHovered ? '#fff' : 'rgba(255, 255, 255, 0.8)';
-      ctx.font = n.type === 'theme' ? '700 11px Plus Jakarta Sans, sans-serif' : '600 10px JetBrains Mono, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(n.label, nx, ny + n.r + 14);
-    });
+        ep.progress += ep.speed;
+        if (ep.progress > 1) ep.progress = 0;
+
+        const px = (n1.x + (n2.x - n1.x) * ep.progress) * w;
+        const py = (n1.y + (n2.y - n1.y) * ep.progress) * h;
+
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      // Draw nodes
+      nodes.forEach(n => {
+        const floatX = (draggedNode === n) ? 0 : Math.sin(animTime + n.r) * 0.003;
+        const floatY = (draggedNode === n) ? 0 : Math.cos(animTime + n.r) * 0.003;
+        const nx = (n.x + floatX) * w;
+        const ny = (n.y + floatY) * h;
+        const isHovered = (hoveredNode && hoveredNode.id === n.id);
+
+        // Node Glow Halo
+        const glowRadius = isHovered ? n.r * 1.8 : n.r * 1.3;
+        const grad = ctx.createRadialGradient(nx, ny, n.r * 0.4, nx, ny, glowRadius);
+        grad.addColorStop(0, n.color + '33');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(nx, ny, glowRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core Node
+        ctx.beginPath();
+        ctx.arc(nx, ny, isHovered ? n.r * 1.15 : n.r, 0, Math.PI * 2);
+        ctx.fillStyle = n.type === 'company' ? '#0f172a' : n.color;
+        ctx.strokeStyle = n.color;
+        ctx.lineWidth = isHovered ? 3 : 2;
+        ctx.fill();
+        ctx.stroke();
+
+        // Node inner icon/dot for company
+        if (n.type === 'company') {
+          ctx.beginPath();
+          ctx.arc(nx, ny, 3, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fill();
+        }
+
+        // Label
+        ctx.fillStyle = isHovered ? '#ffffff' : 'rgba(255, 255, 255, 0.85)';
+        ctx.font = n.type === 'theme' ? '700 11px Plus Jakarta Sans, sans-serif' : '700 11px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(n.label, nx, ny + n.r + 14);
+      });
+    }
 
     requestAnimationFrame(draw);
   }
   draw();
 
-  canvas.addEventListener('mousemove', (e) => {
+  function getNodeUnderMouse(e) {
     const rect = canvas.getBoundingClientRect();
     const mx = (e.clientX - rect.left) / canvas.offsetWidth;
     const my = (e.clientY - rect.top) / canvas.offsetHeight;
 
-    hoveredNode = nodes.find(n => {
-      const dx = n.x - mx;
+    return nodes.find(n => {
+      const dx = (n.x - mx) * (canvas.offsetWidth / canvas.offsetHeight);
       const dy = n.y - my;
-      return Math.sqrt(dx * dx + dy * dy) < (n.r / canvas.offsetWidth) * 2;
+      return Math.sqrt(dx * dx + dy * dy) < (n.r / canvas.offsetHeight) * 1.8;
     }) || null;
+  }
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (draggedNode) {
+      const rect = canvas.getBoundingClientRect();
+      draggedNode.x = Math.max(0.05, Math.min(0.95, (e.clientX - rect.left) / canvas.offsetWidth));
+      draggedNode.y = Math.max(0.05, Math.min(0.95, (e.clientY - rect.top) / canvas.offsetHeight));
+      return;
+    }
+
+    hoveredNode = getNodeUnderMouse(e);
+    canvas.style.cursor = hoveredNode ? 'grab' : 'crosshair';
 
     if (hoveredNode) {
-      triggerBotSpeech(`Tracing topology: ${hoveredNode.label} connected across 10-year SEC filings.`);
+      const connections = edges.filter(ed => ed.from === hoveredNode.id || ed.to === hoveredNode.id).length;
+      triggerBotSpeech(`Tracing topology: [${hoveredNode.label}] connects to ${connections} 10-K risk vectors.`);
+    }
+  });
+
+  canvas.addEventListener('mousedown', (e) => {
+    const n = getNodeUnderMouse(e);
+    if (n) {
+      draggedNode = n;
+      canvas.style.cursor = 'grabbing';
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (draggedNode) {
+      draggedNode = null;
+      canvas.style.cursor = 'crosshair';
     }
   });
 }

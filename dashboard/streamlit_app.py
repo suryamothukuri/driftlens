@@ -16,7 +16,7 @@ logger = logging.getLogger("driftlens.dashboard")
 # High-End Dark Obsidian Theme (Document Forensics & Intelligence)
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="DriftLens — Document Semantic Drift Dashboard",
+    page_title="DriftLens — 10-Year Document Semantic Drift Dashboard",
     page_icon="🔍",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -87,7 +87,6 @@ st.markdown(
         border-bottom: 1.5px solid #10b981;
     }
     
-    /* Tabs custom styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
         background-color: rgba(17, 24, 39, 0.7);
@@ -114,7 +113,7 @@ st.markdown(
 )
 
 # -----------------------------------------------------------------------------
-# Data Loaders
+# Data Loaders (10-Year Horizon: 2016-2025)
 # -----------------------------------------------------------------------------
 DATA_DIRS = [
     Path("data/gold"),
@@ -146,32 +145,62 @@ def load_table(name: str) -> pd.DataFrame:
     return get_fallback_data(name)
 
 def get_fallback_data(name: str) -> pd.DataFrame:
-    years = [2019, 2020, 2021, 2022, 2023]
+    years = list(range(2016, 2026))
     companies = [
-        ("0000320193", "AAPL", "Apple Inc.", "Technology"),
-        ("0000789019", "MSFT", "Microsoft Corporation", "Technology"),
-        ("0001652044", "GOOGL", "Alphabet Inc.", "Technology"),
-        ("0001045810", "NVDA", "NVIDIA Corporation", "Technology"),
+        # Tech & Comms
+        ("0000320193", "AAPL", "Apple Inc.", "Information Technology"),
+        ("0000789019", "MSFT", "Microsoft Corporation", "Information Technology"),
+        ("0001045810", "NVDA", "NVIDIA Corporation", "Information Technology"),
+        ("0001652044", "GOOGL", "Alphabet Inc.", "Communication Services"),
+        ("0001326801", "META", "Meta Platforms, Inc.", "Communication Services"),
+        ("0001535527", "CRWD", "CrowdStrike Holdings, Inc.", "Information Technology"),
+        ("0001640147", "SNOW", "Snowflake Inc.", "Information Technology"),
+        ("0001321655", "PLTR", "Palantir Technologies Inc.", "Information Technology"),
+        ("0001108524", "CRM", "Salesforce, Inc.", "Information Technology"),
+        ("0001730168", "AVGO", "Broadcom Inc.", "Information Technology"),
+
+        # Consumer
+        ("0001018724", "AMZN", "Amazon.com Inc.", "Consumer Discretionary"),
+        ("0001318605", "TSLA", "Tesla, Inc.", "Consumer Discretionary"),
+        ("0000104169", "WMT", "Walmart Inc.", "Consumer Staples"),
+        ("0000080424", "PG", "The Procter & Gamble Company", "Consumer Staples"),
+        ("0000021344", "KO", "The Coca-Cola Company", "Consumer Staples"),
+
+        # Healthcare
         ("0000200406", "JNJ", "Johnson & Johnson", "Healthcare"),
         ("0000078003", "PFE", "Pfizer Inc.", "Healthcare"),
-        ("0000012927", "BA", "The Boeing Company", "Industrials"),
-        ("0001018724", "AMZN", "Amazon.com Inc.", "Consumer Discretionary"),
-        ("0000034088", "XOM", "Exxon Mobil Corporation", "Energy"),
+        ("0000731766", "UNH", "UnitedHealth Group Inc.", "Healthcare"),
+        ("0000059478", "LLY", "Eli Lilly and Company", "Healthcare"),
+        ("0001682852", "MRNA", "Moderna, Inc.", "Healthcare"),
+
+        # Financials & Industrials
         ("0000019617", "JPM", "JPMorgan Chase & Co.", "Financials"),
+        ("0001067983", "BRK.B", "Berkshire Hathaway Inc.", "Financials"),
+        ("0000886982", "GS", "The Goldman Sachs Group, Inc.", "Financials"),
+        ("0000012927", "BA", "The Boeing Company", "Industrials"),
+        ("0000018230", "CAT", "Caterpillar Inc.", "Industrials"),
+        ("0000060086", "LMT", "Lockheed Martin Corporation", "Industrials"),
+
+        # Energy & Utilities
+        ("0000034088", "XOM", "Exxon Mobil Corporation", "Energy"),
+        ("0000093410", "CVX", "Chevron Corporation", "Energy"),
+        ("0000753308", "NEE", "NextEra Energy, Inc.", "Utilities"),
     ]
+
     themes = [
-        (0, "AI Infrastructure & Frontier Model Safety", 10, 2021, 2023, False),
-        (1, "Advanced Semiconductor Foundry Constraints", 8, 2019, 2023, False),
-        (2, "Cloud Data Privacy & Cross-Border Sovereignty", 9, 2019, 2023, False),
-        (3, "Cross-Border Regulatory & Export Controls", 7, 2020, 2023, False),
-        (4, "Pandemic & Global Workforce Disruption", 10, 2020, 2022, False),
-        (5, "Clean Energy Transition & Scope Disclosures", 6, 2021, 2023, False),
-        (6, "Interest Rate & Liquidity Exposure", 5, 2022, 2023, False),
+        (0, "AI Infrastructure & Frontier Model Safety", 30, 2021, 2025, False),
+        (1, "Semiconductor Foundry Constraints & Packaging", 25, 2018, 2025, False),
+        (2, "Cloud Data Privacy, Sovereignty & Zero Trust", 28, 2016, 2025, False),
+        (3, "Cross-Border Export Controls & Trade Sanctions", 22, 2018, 2025, False),
+        (4, "Pandemic & Global Workforce Disruption", 30, 2020, 2023, False),
+        (5, "Clean Energy Transition & Scope 1-3 Disclosures", 20, 2019, 2025, False),
+        (6, "Interest Rate & Liquidity Exposure", 18, 2022, 2025, False),
+        (7, "Kernel-Level OS Stability & Supply Software Security", 15, 2023, 2025, False),
     ]
 
     if name == "companies":
         return pd.DataFrame([
-            {"cik": c[0], "ticker": c[1], "name": c[2], "sector": c[3], "first_year": 2019, "last_year": 2023}
+            {"cik": c[0], "ticker": c[1], "name": c[2], "sector": c[3], "first_year": 2016, "last_year": 2025}
             for c in companies
         ])
     elif name == "themes":
@@ -186,10 +215,12 @@ def get_fallback_data(name: str) -> pd.DataFrame:
                 for cid, _, _, _, _, _ in themes:
                     if cid == 0 and yr < 2021:
                         continue
-                    if cid == 4 and yr > 2022:
+                    if cid == 4 and (yr < 2020 or yr > 2023):
                         continue
-                    cnt = int(np.random.randint(1, 12))
-                    tot = 40 + int(np.random.randint(0, 15))
+                    if cid == 7 and yr < 2023:
+                        continue
+                    cnt = int(np.random.randint(2, 14))
+                    tot = 45 + int(np.random.randint(0, 20))
                     rows.append({
                         "cik": cik,
                         "fiscal_year": yr,
@@ -201,19 +232,23 @@ def get_fallback_data(name: str) -> pd.DataFrame:
     elif name == "theme_changes":
         rows = []
         for cik, _, _, _ in companies:
-            for cid in [0, 1, 2, 3, 4, 5]:
-                for yr in [2020, 2021, 2022, 2023]:
-                    delta = round(float(np.random.uniform(-0.08, 0.12)), 4)
-                    drift = round(float(np.random.uniform(0.1, 0.85)), 4)
-                    cnt = int(np.random.randint(2, 10))
+            for cid in [0, 1, 2, 3, 5, 7]:
+                for yr in range(2017, 2026):
+                    delta = round(float(np.random.uniform(-0.08, 0.14)), 4)
+                    drift = round(float(np.random.uniform(0.12, 0.88)), 4)
+                    wasserstein = round(float(drift * np.random.uniform(0.65, 0.85)), 4)
+                    pval = round(float(np.random.exponential(0.015)), 4)
+                    cnt = int(np.random.randint(2, 12))
                     mat = round(float(abs(delta) * np.log1p(cnt)), 4)
-                    ctype = "new" if (cid == 0 and yr == 2021) else ("intensifying" if delta > 0.03 else ("fading" if delta < -0.03 else "stable"))
+                    ctype = "new" if (cid == 0 and yr == 2021) or (cid == 7 and yr == 2024) else ("intensifying" if delta > 0.035 else ("fading" if delta < -0.035 else "stable"))
                     rows.append({
                         "cik": cik,
                         "cluster_id": cid,
                         "fiscal_year": yr,
                         "intensity_delta": delta,
                         "centroid_drift": drift,
+                        "wasserstein_drift": wasserstein,
+                        "p_value": pval,
                         "materiality_score": mat,
                         "change_type": ctype,
                     })
@@ -221,22 +256,22 @@ def get_fallback_data(name: str) -> pd.DataFrame:
     elif name == "explanations":
         return pd.DataFrame([
             {
-                "change_id": "0000320193_0_2023",
-                "cik": "0000320193",
-                "cluster_id": 0,
-                "fiscal_year": 2023,
-                "explanation_text": "The company dramatically expanded disclosures regarding deep learning foundation models, compute accelerator dependencies, and generative AI service reliability in FY2023. Centroid drift (0.742) highlights a structural pivot from algorithmic recommendations to proprietary foundation models.",
-                "evidence_chunk_ids": ["0000320193_2023_item_1a_0012", "0000320193_2023_item_1a_0014"],
+                "change_id": "0001045810_1_2025",
+                "cik": "0001045810",
+                "cluster_id": 1,
+                "fiscal_year": 2025,
+                "explanation_text": "Disclosures heavily expanded focus on third-party high-bandwidth memory (HBM3e/HBM4) stack shortages and advanced CoWoS substrate packaging bottlenecks in Taiwan. Centroid drift (0.842) and Wasserstein distance (0.612) confirm a statistically significant structural pivot (p=0.002).",
+                "evidence_chunk_ids": ["0001045810_2025_item_1a_0008"],
                 "model_used": "qwen2.5:7b-instruct",
                 "generated_at": datetime.now().isoformat()
             },
             {
-                "change_id": "0001045810_1_2022",
-                "cik": "0001045810",
-                "cluster_id": 1,
-                "fiscal_year": 2022,
-                "explanation_text": "Disclosures in FY2022 underscored severe foundry capacity constraints and packaging bottlenecks. Centroid drift reveals that risk phrasing shifted from generalized fab utilization to specific geographical wafer fabrication concentration.",
-                "evidence_chunk_ids": ["0001045810_2022_item_1a_0008"],
+                "change_id": "0001535527_7_2024",
+                "cik": "0001535527",
+                "cluster_id": 7,
+                "fiscal_year": 2024,
+                "explanation_text": "Disclosures underwent a major structural overhaul following kernel-level driver incident risk analysis, adding extensive new clauses detailing system resiliency, staggered update channels, and customer litigation exposure (p=0.001).",
+                "evidence_chunk_ids": ["0001535527_2024_item_1a_0004"],
                 "model_used": "qwen2.5:7b-instruct",
                 "generated_at": datetime.now().isoformat()
             }
@@ -244,37 +279,18 @@ def get_fallback_data(name: str) -> pd.DataFrame:
     elif name == "evidence_chunks":
         return pd.DataFrame([
             {
-                "chunk_id": "0000320193_2023_item_1a_0012",
-                "cik": "0000320193",
-                "fiscal_year": 2023,
-                "cluster_id": 0,
-                "text": "Rapid development and deployment of complex machine learning systems introduce unique operational and reputational challenges. Any failure in our generative AI safety guardrails or unforeseen latency across distributed accelerator clusters could adversely impact user adoption and enterprise customer trust.",
-                "char_start_note": "Item 1A paragraph 12"
-            },
-            {
-                "chunk_id": "0000320193_2023_item_1a_0014",
-                "cik": "0000320193",
-                "fiscal_year": 2023,
-                "cluster_id": 0,
-                "text": "We rely on specialized third-party cloud infrastructure and proprietary silicon hardware to train and serve frontier neural networks. Supply shortages or architectural changes by key compute vendors may hinder our ability to scale intelligent features across operating system releases.",
-                "char_start_note": "Item 1A paragraph 14"
-            },
-            {
-                "chunk_id": "0001045810_2022_item_1a_0008",
+                "chunk_id": "0001045810_2025_item_1a_0008",
                 "cik": "0001045810",
-                "fiscal_year": 2022,
+                "fiscal_year": 2025,
                 "cluster_id": 1,
-                "text": "Substantially all of our advanced node GPUs and network processors are manufactured by a concentrated number of independent foundries located in Asia. Any disruption to advanced packaging, substrate availability, or regional trade transport can materially delay product launches.",
+                "text": "Substantially all of our Blackwell and Rubin architecture systems require dense 2.5D/3D wafer-on-wafer CoWoS packaging and specialized HBM stack integration performed by a concentrated number of offshore facilities.",
                 "char_start_note": "Item 1A paragraph 8"
             }
         ])
     elif name == "data_quality":
         return pd.DataFrame([
-            {"fiscal_year": 2019, "extraction_success_rate": 0.92, "noise_fraction": 0.08, "total_chunks": 4200, "total_filings": 30, "failed_extractions": 2},
-            {"fiscal_year": 2020, "extraction_success_rate": 0.94, "noise_fraction": 0.09, "total_chunks": 4850, "total_filings": 30, "failed_extractions": 2},
-            {"fiscal_year": 2021, "extraction_success_rate": 0.96, "noise_fraction": 0.07, "total_chunks": 5100, "total_filings": 30, "failed_extractions": 1},
-            {"fiscal_year": 2022, "extraction_success_rate": 0.95, "noise_fraction": 0.08, "total_chunks": 5300, "total_filings": 30, "failed_extractions": 1},
-            {"fiscal_year": 2023, "extraction_success_rate": 0.97, "noise_fraction": 0.06, "total_chunks": 5620, "total_filings": 30, "failed_extractions": 1},
+            {"fiscal_year": yr, "extraction_success_rate": round(0.91 + (yr - 2016) * 0.008, 3), "noise_fraction": round(0.10 - (yr - 2016) * 0.004, 3), "total_chunks": 3200 + (yr - 2016) * 450, "total_filings": 50, "failed_extractions": max(1, 4 - int((yr - 2016) * 0.3))}
+            for yr in years
         ])
     return pd.DataFrame()
 
@@ -291,15 +307,16 @@ df_quality = load_table("data_quality")
 # -----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### 🔍 **DriftLens**")
-    st.caption("Document Semantic Drift & Forensics Engine")
+    st.caption("10-Year Document Semantic Drift Engine (2016–2025)")
     st.divider()
 
     st.markdown(
         """
         **Analytical Architecture**
+        - **Horizon:** 10 Fiscal Years (2016–2025)
         - **Pipeline:** Offline Batch Embeddings + UMAP/HDBSCAN
-        - **Inference Cost:** **$0.00 / month** (Static Parquet Artifacts)
-        - **Drift Metric:** YoY Intensity Delta × Centroid Cosine Drift
+        - **Statistical Drift:** Wasserstein Distance + Permutation Tests
+        - **Inference Cost:** **$0.00 / month** (Static Gold Tables)
         """
     )
 
@@ -308,7 +325,7 @@ with st.sidebar:
     if status_dir:
         st.success(f"✓ Data source: `{status_dir}`")
     else:
-        st.info("⚡ Running interactive demo mode")
+        st.info("⚡ Interactive demo mode active (10-Year Corpus)")
 
     st.markdown(
         """
@@ -322,15 +339,15 @@ with st.sidebar:
 # Tab Layout
 # -----------------------------------------------------------------------------
 tab_overview, tab_explorer, tab_deepdive, tab_quality, tab_human = st.tabs([
-    "📊 Corpus Overview",
-    "⚡ Forensic Explorer",
+    "📊 10-Year Corpus Overview",
+    "⚡ Forensic Diff Explorer",
     "🏢 Company Deep-Dive",
     "🛡️ Data Reliability",
     "✍️ Human-in-the-Loop"
 ])
 
 # -----------------------------------------------------------------------------
-# TAB 1: Corpus Overview
+# TAB 1: 10-Year Corpus Overview
 # -----------------------------------------------------------------------------
 with tab_overview:
     st.markdown(
@@ -338,7 +355,7 @@ with tab_overview:
         <div class="main-header-mona">
             <h1 style="margin:0; font-size:2.25rem; font-weight:800; color:#ffffff; letter-spacing:-0.03em;">Corpus Semantic Drift Intelligence</h1>
             <p style="margin:0.75rem 0 0 0; color:#9ca3af; font-size:1.1rem; line-height:1.6;">
-                Tracking high-dimensional cluster trajectories, newly emergent disclosures, and structural phrasing evolution across versioned 10-K document histories.
+                Tracking high-dimensional cluster trajectories, newly emergent disclosures, and Wasserstein distributional shifts across 10 years of corporate 10-K filings (2016–2025).
             </p>
         </div>
         """,
@@ -356,7 +373,7 @@ with tab_overview:
     with c2:
         st.metric("Discovered Themes", f"{n_themes} Clusters")
     with c3:
-        st.metric("Indexed Chunks", f"{total_chunks:,}")
+        st.metric("Indexed Chunks (2016-2025)", f"{total_chunks:,}")
     with c4:
         st.metric("Avg Parse Rate", avg_success)
 
@@ -365,18 +382,18 @@ with tab_overview:
     col_left, col_right = st.columns([3, 2])
 
     with col_left:
-        st.subheader("Discovered Themes by Cross-Corpus Prevalence")
+        st.subheader("Discovered Themes by Cross-Corpus Prevalence (2016–2025)")
         if not df_themes.empty:
             chart = alt.Chart(df_themes).mark_bar(cornerRadiusTopRight=6, cornerRadiusBottomRight=6).encode(
                 x=alt.X("n_companies_ever:Q", title="Number of Disclosing Entities"),
                 y=alt.Y("label:N", sort="-x", title=None),
                 color=alt.Color("n_companies_ever:Q", scale=alt.Scale(scheme="tealblues"), legend=None),
                 tooltip=["label", "n_companies_ever", "first_seen_year", "last_seen_year"]
-            ).properties(height=340)
+            ).properties(height=360)
             st.altair_chart(chart, use_container_width=True)
 
     with col_right:
-        st.subheader("Indexed Corpus Growth Across Versions")
+        st.subheader("Indexed Corpus Growth Across 10 Fiscal Years")
         if not df_quality.empty:
             growth_chart = alt.Chart(df_quality).mark_area(
                 line={'color':'#38bdf8'},
@@ -387,18 +404,18 @@ with tab_overview:
                     x1=1, x2=1, y1=1, y2=0
                 )
             ).encode(
-                x=alt.X("fiscal_year:O", title="Fiscal Year"),
+                x=alt.X("fiscal_year:O", title="Fiscal Year (2016–2025)"),
                 y=alt.Y("total_chunks:Q", title="Paragraph Chunks"),
                 tooltip=["fiscal_year", "total_chunks", "total_filings"]
-            ).properties(height=340)
+            ).properties(height=360)
             st.altair_chart(growth_chart, use_container_width=True)
 
 # -----------------------------------------------------------------------------
 # TAB 2: Forensic Explorer (Side-by-Side Comparison)
 # -----------------------------------------------------------------------------
 with tab_explorer:
-    st.subheader("Material Change & Forensic Diff Explorer")
-    st.caption("Ranked by Materiality Score: abs(YoY Δ Intensity) × log(1 + paragraph_count)")
+    st.subheader("Material Change & Forensic Diff Explorer (2016–2025)")
+    st.caption("Ranked by Materiality Score: abs(YoY Δ Intensity) × log(1 + paragraph_count) with Wasserstein distribution distance.")
 
     df_merged = df_changes.merge(df_themes[["cluster_id", "label"]], on="cluster_id", how="left")
     df_merged = df_merged.merge(df_companies[["cik", "ticker", "name", "sector"]], on="cik", how="left")
@@ -411,7 +428,7 @@ with tab_explorer:
         change_types = ["All"] + list(df_changes["change_type"].unique()) if not df_changes.empty else ["All"]
         type_choice = st.selectbox("Change Classification", change_types)
     with f3:
-        sort_choice = st.selectbox("Sort Metric", ["Materiality Score (Desc)", "Centroid Drift (Desc)", "YoY Delta (Desc)"])
+        sort_choice = st.selectbox("Sort Metric", ["Materiality Score (Desc)", "Centroid Drift (Desc)", "Wasserstein Drift (Desc)", "YoY Delta (Desc)"])
 
     filtered = df_merged.copy()
     if sec_choice != "All":
@@ -423,6 +440,8 @@ with tab_explorer:
         filtered = filtered.sort_values("materiality_score", ascending=False)
     elif sort_choice.startswith("Centroid"):
         filtered = filtered.sort_values("centroid_drift", ascending=False)
+    elif sort_choice.startswith("Wasserstein"):
+        filtered = filtered.sort_values("wasserstein_drift", ascending=False) if "wasserstein_drift" in filtered.columns else filtered
     else:
         filtered = filtered.sort_values("intensity_delta", ascending=False)
 
@@ -446,25 +465,13 @@ with tab_explorer:
     if not filtered.empty:
         selected_idx = st.selectbox(
             "Select an event to inspect source excerpts:",
-            range(min(20, len(filtered))),
+            range(min(25, len(filtered))),
             format_func=lambda i: f"{filtered.iloc[i]['ticker']} — {filtered.iloc[i]['label']} ({filtered.iloc[i]['fiscal_year']})"
         )
         row = filtered.iloc[selected_idx]
 
-        exp_match = df_explanations[
-            (df_explanations["cik"] == row["cik"]) &
-            (df_explanations["cluster_id"] == row["cluster_id"]) &
-            (df_explanations["fiscal_year"] == row["fiscal_year"])
-        ]
-
         st.markdown(f"#### **{row['name']} ({row['ticker']}) — {row['label']} [{row['fiscal_year']}]**")
         st.markdown(f"**Classification:** `{row['change_type']}` | **Materiality Score:** `{row['materiality_score']:.4f}` | **Centroid Drift:** `{row['centroid_drift']:.4f}`")
-
-        if not exp_match.empty:
-            exp_text = exp_match.iloc[0]["explanation_text"]
-            st.info(f"💡 **Synthesized Change Explanation (Batch Cached):**\n\n{exp_text}")
-        else:
-            st.info(f"💡 **Algorithmic Summary:** Theme '{row['label']}' underwent a {row['change_type']} shift in FY{row['fiscal_year']} with delta of {row['intensity_delta']:+.2%}.")
 
         # Side by side before/after comparison
         diff_col1, diff_col2 = st.columns(2)
@@ -473,7 +480,7 @@ with tab_explorer:
             st.markdown("""
             <div class="forensic-diff-box">
                 <small style="color:#9ca3af; font-weight:700;">Item 1A Section Excerpt</small><br/>
-                <em>"We utilize algorithmic recommendations and standard machine learning methods to enhance user personalization and device battery longevity."</em>
+                <em>"We rely on standard fabrication vendor arrangements and established supply channels to fulfill our product deliveries according to seasonal production cycles."</em>
             </div>
             """, unsafe_allow_html=True)
 
@@ -482,26 +489,26 @@ with tab_explorer:
             st.markdown("""
             <div class="forensic-diff-box" style="border-color:rgba(56,189,248,0.4);">
                 <small style="color:#38bdf8; font-weight:700;">Item 1A Section Excerpt</small><br/>
-                <span>"Rapid deployment of complex <span class="forensic-added">frontier neural networks and generative AI features</span> introduces unique operational and reputational risks. Any failure in our <span class="forensic-highlight">safety guardrails or third-party accelerator clusters</span> could materially disrupt enterprise customer trust."</span>
+                <span>"Critical reliance on <span class="forensic-added">advanced multi-die substrate integration and specialized third-party cloud accelerators</span> introduces substantial delivery bottlenecks. Any disruption in <span class="forensic-highlight">offshore packaging capacity</span> will materially degrade platform shipment velocity."</span>
             </div>
             """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# TAB 3: Company Deep-Dive
+# TAB 3: Company Deep-Dive (10 Years)
 # -----------------------------------------------------------------------------
 with tab_deepdive:
-    st.subheader("Company Temporal Disclosure Profile")
+    st.subheader("Company 10-Year Temporal Disclosure Profile (2016–2025)")
     if not df_companies.empty:
-        comp_map = {f"{r['ticker']} — {r['name']}": r['cik'] for _, r in df_companies.iterrows()}
+        comp_map = {f"{r['ticker']} — {r['name']} ({r['sector']})": r['cik'] for _, r in df_companies.iterrows()}
         selected_label = st.selectbox("Select Target Company:", list(comp_map.keys()))
         target_cik = comp_map[selected_label]
 
         comp_intensity = df_intensity[df_intensity["cik"] == target_cik].merge(df_themes[["cluster_id", "label"]], on="cluster_id", how="left")
 
         if not comp_intensity.empty:
-            st.markdown("#### Theme Intensity Heatmap Over Fiscal Years")
+            st.markdown("#### Theme Intensity Heatmap (2016–2025)")
             heatmap = alt.Chart(comp_intensity).mark_rect(cornerRadius=6).encode(
-                x=alt.X("fiscal_year:O", title="Fiscal Year"),
+                x=alt.X("fiscal_year:O", title="Fiscal Year (2016–2025)"),
                 y=alt.Y("label:N", title="Theme Cluster", sort="-color"),
                 color=alt.Color("intensity:Q", scale=alt.Scale(scheme="tealblues"), title="Intensity (% of sections)"),
                 tooltip=["label", "fiscal_year", "chunk_count", alt.Tooltip("intensity:Q", format=".2%")]
@@ -522,7 +529,7 @@ with tab_deepdive:
 # TAB 4: Data Quality & Health
 # -----------------------------------------------------------------------------
 with tab_quality:
-    st.subheader("Data Pipeline Reliability & Parse Quality")
+    st.subheader("Data Pipeline Reliability & Parse Quality (2016–2025)")
     st.caption("Complete transparency regarding HTML parsing accuracy, unassigned noise points, and document coverage.")
 
     if not df_quality.empty:

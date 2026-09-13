@@ -74,8 +74,8 @@
           </div>
           <div class="scrubber-box">
             <span style="font-size:0.85rem; font-weight:700; color:var(--neon-sky);">Temporal Scrub:</span>
-            <input type="range" id="trajectory-slider" class="year-slider" min="2019" max="2023" value="2023" step="1">
-            <span id="slider-year-label" style="font-family:var(--font-mono); font-weight:700; color:#fff; min-width:40px;">2023</span>
+            <input type="range" id="trajectory-slider" class="year-slider" min="2016" max="2025" value="2025" step="1">
+            <span id="slider-year-label" style="font-family:var(--font-mono); font-weight:700; color:#fff; min-width:40px;">2025</span>
           </div>
         </div>
         
@@ -151,7 +151,7 @@
         </div>
 
         <div id="pipeline-detail-box" class="pipeline-detail-panel">
-          <strong style="color:var(--neon-sky);">STAGE 01: SEC EDGAR Ingestion</strong><br/>
+          <strong style="color:var(--neon-sky);">STAGE 01: SEC EDGAR Ingestion (2016–2025)</strong><br/>
           <span style="color:#cbd5e1;">Strict rate limiting prevents SEC 429 blocks. Downloads raw primary HTML filings, stores immutable files in <code>data/bronze/</code>, and creates cryptographic metadata sidecars.</span>
         </div>
       </div>
@@ -199,7 +199,7 @@
               <th>Year</th>
               <th>Classification</th>
               <th>Δ Intensity</th>
-              <th>Centroid Drift</th>
+              <th>Centroid Drift</th><th>Wasserstein (p-val)</th>
               <th>Materiality Score</th>
             </tr>
           </thead>

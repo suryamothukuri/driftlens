@@ -65,6 +65,16 @@ class ThemeClusterer:
         self.labels_ = self.hdbscan_model.fit_predict(self.reduced_embeddings_)
         self.probabilities_ = self.hdbscan_model.probabilities_
 
+        # Fallback if HDBSCAN marks 100% of points as noise (e.g. random synthetic data)
+        if len(set(self.labels_) - {-1}) == 0 and len(embeddings) > 0:
+            from sklearn.cluster import KMeans
+
+            n_clusters = max(1, min(3, len(embeddings) // max(1, self.hdbscan_min_cluster_size)))
+            km = KMeans(n_clusters=n_clusters, n_init="auto", random_state=self.random_state)
+            self.labels_ = km.fit_predict(
+                self.reduced_embeddings_ if self.reduced_embeddings_ is not None else embeddings
+            ).astype(np.int32)
+
         self.cluster_centroids_ = self._compute_centroids(embeddings)
         return self
 

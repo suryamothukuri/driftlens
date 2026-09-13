@@ -2,10 +2,11 @@
 
 import logging
 from typing import Any, Dict, List, Optional
+
 import hdbscan
 import numpy as np
-from sklearn.metrics.pairwise import cosine_distances
 import umap
+from sklearn.metrics.pairwise import cosine_distances
 
 from driftlens.parsing.text_cleaning import is_grammatical_prose
 

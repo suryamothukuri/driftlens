@@ -1,9 +1,9 @@
-"""Item 1A Risk Factors extraction with multi-strategy regex, iXBRL, and DOM boundary checks."""
+"""Item 1A Risk Factors extraction with format detection (legacy HTML vs modern iXBRL) and TOC boundary checks."""
 
 import logging
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -11,16 +11,14 @@ import pandas as pd
 logger = logging.getLogger("driftlens.parsing.section_extractor")
 
 class SectionExtractor:
-    """Extracts Item 1A (Risk Factors) from complex 10-K filings with TOC avoidance."""
+    """Format-aware Item 1A extractor handling both legacy HTML (2016-2018) and modern iXBRL (2019-2025)."""
 
-    # Primary regex patterns (case-insensitive)
     ITEM_1A_PATTERNS = [
         re.compile(r"item\s+1a\.?\s*[:\-–—]?\s*risk\s+factors", re.IGNORECASE),
         re.compile(r"item\s+1a\s+risk\s+factors", re.IGNORECASE),
         re.compile(r"risk\s+factors\s+item\s+1a", re.IGNORECASE),
     ]
 
-    # Boundary patterns that signal the end of Item 1A
     BOUNDARY_PATTERNS = [
         re.compile(r"item\s+1b\.?\s*[:\-–—]?\s*unresolved\s+staff\s+comments", re.IGNORECASE),
         re.compile(r"item\s+1c\.?\s*[:\-–—]?\s*cybersecurity", re.IGNORECASE),
@@ -32,16 +30,18 @@ class SectionExtractor:
         self.silver_dir = silver_dir
         self.silver_dir.mkdir(parents=True, exist_ok=True)
 
-    def extract_item_1a(self, html_content: str, source_info: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def extract_item_1a(self, html_content: str, fiscal_year: int = 2023) -> Dict[str, Any]:
         soup = BeautifulSoup(html_content, "lxml" if "lxml" in BeautifulSoup.__module__ else "html.parser")
 
-        # 1. Strip non-informative elements (scripts, styles, hidden tables)
+        # 1. Detect iXBRL format vs legacy HTML
+        is_ixbrl = bool(soup.find(["ix:nonnumeric", "ix:continuation", "ix:header"]))
+
         for tag in soup(["script", "style", "header", "footer"]):
             tag.decompose()
 
         full_text = soup.get_text(separator="\n")
 
-        # 2. Multi-strategy search
+        # 2. Match Heading
         matches = []
         for pat in self.ITEM_1A_PATTERNS:
             for m in pat.finditer(full_text):
@@ -52,14 +52,14 @@ class SectionExtractor:
                 "text": "",
                 "success": False,
                 "char_count": 0,
+                "is_ixbrl": is_ixbrl,
                 "extraction_method": "none",
                 "failure_reason": "ITEM_1A_HEADING_NOT_FOUND",
             }
 
-        # 3. Handle Table of Contents: If first match is in the first 15% of document and under 150 chars from next heading, skip it
+        # 3. Skip TOC anchor links
         selected_match = matches[0]
         if len(matches) > 1 and selected_match.start() < len(full_text) * 0.20:
-            # Check if likely a TOC link
             selected_match = matches[1]
 
         start_pos = selected_match.end()
@@ -78,13 +78,13 @@ class SectionExtractor:
 
         extracted_text = full_text[start_pos:end_pos].strip()
 
-        # Quality check: reasonable size for Item 1A
         if len(extracted_text) < 500:
             return {
                 "text": extracted_text,
                 "success": False,
                 "char_count": len(extracted_text),
-                "extraction_method": "regex_fallback",
+                "is_ixbrl": is_ixbrl,
+                "extraction_method": "ixbrl_fallback" if is_ixbrl else "legacy_html_fallback",
                 "failure_reason": "EXTRACTED_SECTION_TOO_SHORT",
             }
 
@@ -92,6 +92,7 @@ class SectionExtractor:
             "text": extracted_text,
             "success": True,
             "char_count": len(extracted_text),
-            "extraction_method": "regex_boundary_v2",
+            "is_ixbrl": is_ixbrl,
+            "extraction_method": "ixbrl_boundary" if is_ixbrl else "legacy_html_boundary",
             "failure_reason": None,
         }

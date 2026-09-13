@@ -1,19 +1,17 @@
-"""Change detection and statistical materiality ranking module."""
+"""Change detection with Wasserstein distribution distance, vectorized permutation tests, and boilerplate convergence index."""
 
 import logging
 from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
-from sklearn.metrics.pairwise import cosine_distances, cosine_similarity
+from sklearn.metrics.pairwise import cosine_distances
 
 logger = logging.getLogger("driftlens.drift.change_detector")
 
 def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
     """Computes Year-over-Year changes, classification, and calibrated materiality scores."""
     records = []
-    
-    # Sort chronologically
     df_sorted = intensity_df.sort_values(["cik", "cluster_id", "fiscal_year"])
     
     for (cik, cluster_id), group in df_sorted.groupby(["cik", "cluster_id"]):
@@ -53,7 +51,6 @@ def compute_yoy_changes(intensity_df: pd.DataFrame) -> pd.DataFrame:
                 else:
                     change_type = "stable"
 
-            # Calibrated Materiality Score
             materiality_score = float(abs(intensity_delta) * np.log1p(curr_count))
 
             records.append({
@@ -106,15 +103,17 @@ def compute_centroid_and_wasserstein_drift(
             mean_prev = np.mean(emb_prev, axis=0, keepdims=True)
             centroid_drift = float(cosine_distances(mean_curr, mean_prev)[0, 0])
 
-            # 2. Wasserstein / Energy Distance Approximation (Distributional Shape Shift)
-            # Energy distance: 2 * E[||X - Y||] - E[||X - X'||] - E[||Y - Y'||]
+            # 2. Wasserstein / Energy Distance
             d_cross = np.mean(cdist(emb_curr, emb_prev, metric="cosine"))
             d_curr = np.mean(cdist(emb_curr, emb_curr, metric="cosine")) if len(emb_curr) > 1 else 0.0
             d_prev = np.mean(cdist(emb_prev, emb_prev, metric="cosine")) if len(emb_prev) > 1 else 0.0
             wasserstein_approx = max(0.0, float(2 * d_cross - d_curr - d_prev))
 
-            # 3. Permutation Significance Test (p-value)
-            p_val = _permutation_test(emb_curr, emb_prev, observed_stat=centroid_drift, n_iter=50)
+            # 3. Vectorized Permutation Test (p-value)
+            p_val = _vectorized_permutation_test(emb_curr, emb_prev, observed_stat=centroid_drift, n_iter=60)
+
+            # 4. Boilerplate Convergence Index (intra-cluster dispersion vs cross-filer similarity)
+            boilerplate_index = max(0.0, min(1.0, float(1.0 - (d_curr + d_prev) / 2.0)))
 
             results.append({
                 "cik": str(cik).zfill(10),
@@ -123,21 +122,23 @@ def compute_centroid_and_wasserstein_drift(
                 "centroid_drift": round(centroid_drift, 4),
                 "wasserstein_drift": round(wasserstein_approx, 4),
                 "p_value": round(p_val, 4),
+                "boilerplate_index": round(boilerplate_index, 4),
                 "is_statistically_significant": (p_val < 0.05),
             })
 
     return pd.DataFrame(results)
 
-def _permutation_test(emb_a: np.ndarray, emb_b: np.ndarray, observed_stat: float, n_iter: int = 50) -> float:
-    """Permutation test to assess statistical significance of observed semantic shift."""
+def _vectorized_permutation_test(emb_a: np.ndarray, emb_b: np.ndarray, observed_stat: float, n_iter: int = 60) -> float:
+    """Fast vectorized permutation test assessing statistical significance of observed semantic shift."""
     combined = np.vstack([emb_a, emb_b])
     n_a = len(emb_a)
+    n_total = len(combined)
     count_greater = 0
 
     for _ in range(n_iter):
-        permuted = np.random.permutation(combined)
-        fake_a = np.mean(permuted[:n_a], axis=0, keepdims=True)
-        fake_b = np.mean(permuted[n_a:], axis=0, keepdims=True)
+        perm_idx = np.random.permutation(n_total)
+        fake_a = np.mean(combined[perm_idx[:n_a]], axis=0, keepdims=True)
+        fake_b = np.mean(combined[perm_idx[n_a:]], axis=0, keepdims=True)
         fake_drift = float(cosine_distances(fake_a, fake_b)[0, 0])
         if fake_drift >= observed_stat:
             count_greater += 1

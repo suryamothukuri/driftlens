@@ -1,20 +1,18 @@
 """UMAP dimensionality reduction and HDBSCAN theme clustering with Outlier Anomaly Discovery."""
 
 import logging
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
+from typing import Any, Dict, List, Optional
 import hdbscan
-import joblib
 import numpy as np
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_distances, cosine_similarity
+from sklearn.metrics.pairwise import cosine_distances
 import umap
+
+from driftlens.parsing.text_cleaning import is_grammatical_prose
 
 logger = logging.getLogger("driftlens.nlp.clustering")
 
 class ThemeClusterer:
-    """Fits UMAP + HDBSCAN pipeline and extracts cluster manifolds + isolated black-swan anomalies."""
+    """Fits UMAP + HDBSCAN pipeline and extracts cluster manifolds + sanitized black-swan anomalies."""
 
     def __init__(
         self,
@@ -38,7 +36,6 @@ class ThemeClusterer:
         self.probabilities_: Optional[np.ndarray] = None
         self.reduced_embeddings_: Optional[np.ndarray] = None
         self.cluster_centroids_: Dict[int, np.ndarray] = {}
-        self.outlier_scores_: Optional[np.ndarray] = None
 
     def fit(self, embeddings: np.ndarray) -> "ThemeClusterer":
         logger.info(f"Reducing {embeddings.shape[0]} embeddings to {self.umap_components}D with UMAP...")
@@ -61,7 +58,6 @@ class ThemeClusterer:
         )
         self.labels_ = self.hdbscan_model.fit_predict(self.reduced_embeddings_)
         self.probabilities_ = self.hdbscan_model.probabilities_
-        self.outlier_scores_ = getattr(self.hdbscan_model, "outlier_scores_", None)
 
         self.cluster_centroids_ = self._compute_centroids(embeddings)
         return self
@@ -99,9 +95,10 @@ class ThemeClusterer:
         self,
         embeddings: np.ndarray,
         chunk_ids: List[str],
+        chunk_texts: List[str],
         top_k: int = 50
     ) -> List[Dict[str, Any]]:
-        """Identifies isolated black-swan / novel risks from HDBSCAN noise points."""
+        """Identifies isolated black-swan risks from HDBSCAN noise, filtering out non-prose formatting junk."""
         if len(self.cluster_centroids_) == 0 or self.labels_ is None:
             return []
 
@@ -109,23 +106,32 @@ class ThemeClusterer:
         if len(noise_indices) == 0:
             return []
 
-        noise_embeddings = embeddings[noise_indices]
+        # Filter for grammatical prose to avoid tabular junk
+        valid_noise_indices = [
+            idx for idx in noise_indices
+            if idx < len(chunk_texts) and is_grammatical_prose(chunk_texts[idx])
+        ]
+
+        if not valid_noise_indices:
+            return []
+
+        noise_embeddings = embeddings[valid_noise_indices]
         centroid_matrix = np.array(list(self.cluster_centroids_.values()))
 
         # Distance to closest known theme centroid
         dist_matrix = cosine_distances(noise_embeddings, centroid_matrix)
         min_distances = np.min(dist_matrix, axis=1)
 
-        # Rank highest distance as true novel outliers
         sorted_order = np.argsort(-min_distances)[:top_k]
 
         anomalies = []
-        for idx in sorted_order:
-            orig_idx = noise_indices[idx]
+        for rank_idx in sorted_order:
+            orig_idx = valid_noise_indices[rank_idx]
             anomalies.append({
                 "chunk_id": chunk_ids[orig_idx],
-                "anomaly_score": round(float(min_distances[idx]), 4),
+                "anomaly_score": round(float(min_distances[rank_idx]), 4),
                 "is_outlier": True,
+                "text": chunk_texts[orig_idx],
                 "embedding_index": int(orig_idx)
             })
         return anomalies

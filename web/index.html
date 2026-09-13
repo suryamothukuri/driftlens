@@ -3,20 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DriftLens — Document Semantic Drift & Intelligence Engine</title>
+  <title>DriftLens — 10-Year Document Semantic Drift & Intelligence Engine</title>
   <link rel="stylesheet" href="assets/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
   <div class="aurora-ambient"></div>
+  <div class="laser-scan-overlay" id="laser-scan-bar"></div>
 
-  <!-- Signature DriftLens AI Analyst Bot -->
+  <!-- Signature DriftLens AI Analyst Bot 2.0 -->
   <div class="drift-bot-container" id="drift-bot">
     <div class="drift-bot-bubble" id="drift-bot-text">
-      <strong>DriftBot AI:</strong> Ready to analyze document disclosures & semantic shifts.
+      <strong>DriftBot AI 2.0:</strong> Ready to analyze 10-year disclosures across 50+ filers.
+      <div class="bot-action-chips">
+        <span class="bot-chip" id="bot-scan-btn">⚡ Run Radar Scan</span>
+        <span class="bot-chip" id="bot-outlier-btn">🔍 Audit Outliers</span>
+        <span class="bot-chip" id="bot-sql-btn">📊 SQL Benchmark</span>
+      </div>
     </div>
-    <div class="drift-bot-avatar" id="drift-bot-avatar" title="DriftLens Forensic Assistant">
+    <div class="drift-bot-avatar" id="drift-bot-avatar" title="Click to trigger DriftLens Radar Scan">
       <div class="drift-bot-eye" id="drift-bot-eye"></div>
       <div class="drift-bot-scan-beam" id="drift-bot-beam"></div>
     </div>
@@ -31,9 +37,11 @@
       </a>
       <ul class="nav-pill-group">
         <li><a class="nav-link active" data-view="landing">Overview</a></li>
+        <li><a class="nav-link" data-view="network">Knowledge Graph</a></li>
         <li><a class="nav-link" data-view="global">What Changed</a></li>
         <li><a class="nav-link" data-view="timeline">Company Timeline</a></li>
         <li><a class="nav-link" data-view="sql">SQL Sandbox</a></li>
+        <li><a class="nav-link" data-view="about">About & Guide</a></li>
         <li><a class="nav-link" href="https://github.com/suryamothukuri/driftlens" target="_blank">GitHub ↗</a></li>
       </ul>
     </div>
@@ -47,7 +55,7 @@
         <canvas id="hero-bg-canvas" class="hero-backdrop-canvas"></canvas>
         <div class="hero-badge">
           <span class="pulse-dot"></span>
-          <span>Applied Document Forensics & Semantic Trajectories</span>
+          <span>10-Year Document Forensics (2016–2025) • 50+ Leading Entities</span>
         </div>
         <h1 class="hero-title">
           Detect when documents <br />
@@ -55,25 +63,45 @@
         </h1>
         <p class="hero-subtitle">
           A general-purpose semantic drift detection engine for large versioned document corpora.
-          Tracking high-dimensional cluster trajectories, centroid drift, and evidence-grounded materiality shifts across corporate 10-K disclosures.
+          Tracking high-dimensional cluster trajectories, Wasserstein distributional shifts, and evidence-grounded materiality across 10 years of SEC 10-K disclosures.
         </p>
         <div class="hero-cta-group">
           <button class="btn btn-primary" onclick="switchView('global')">Explore Top Drift Events →</button>
-          <button class="btn btn-secondary" onclick="switchView('sql')">Launch SQL Sandbox</button>
+          <button class="btn btn-secondary" onclick="switchView('network')">Explore Knowledge Graph</button>
+          <button class="btn btn-secondary" onclick="switchView('about')">Methodology Guide</button>
+        </div>
+
+        <!-- 3D Floating Document Preview Tiles -->
+        <div class="hero-3d-tiles">
+          <div class="doc-tile">
+            <div class="doc-tile-badge">SEC FORM 10-K / FY2025</div>
+            <div class="doc-tile-title">NVIDIA (NVDA)</div>
+            <div class="doc-tile-text">Advanced CoWoS packaging wafer concentration & HBM stack bottlenecks.</div>
+          </div>
+          <div class="doc-tile">
+            <div class="doc-tile-badge">SEC FORM 10-K / FY2024</div>
+            <div class="doc-tile-title">CrowdStrike (CRWD)</div>
+            <div class="doc-tile-text">Kernel-level sensor driver update validation & global outage exposure.</div>
+          </div>
+          <div class="doc-tile">
+            <div class="doc-tile-badge">SEC FORM 10-K / FY2024</div>
+            <div class="doc-tile-title">Apple (AAPL)</div>
+            <div class="doc-tile-text">Private cloud compute nodes & generative AI safety guardrail liabilities.</div>
+          </div>
         </div>
       </section>
 
-      <!-- Latent Space Trajectory Visualizer -->
+      <!-- Latent Space Trajectory Visualizer (2016-2025) -->
       <div class="mona-card interactive-showcase">
         <div class="showcase-header">
           <div>
-            <h3 class="showcase-title">Interactive Latent Space Trajectory</h3>
+            <h3 class="showcase-title">Interactive Latent Space Trajectory (2016–2025)</h3>
             <p style="color:var(--text-secondary); font-size:0.92rem;">
-              Real-time UMAP projection of sentence embeddings across fiscal disclosure years. Drag the slider to observe semantic cluster migration.
+              Real-time UMAP projection of sentence embeddings across 10 fiscal disclosure years. Drag the slider to observe multi-modal cluster drift.
             </p>
           </div>
           <div class="scrubber-box">
-            <span style="font-size:0.85rem; font-weight:700; color:var(--neon-sky);">Temporal Scrub:</span>
+            <span style="font-size:0.85rem; font-weight:700; color:var(--neon-sky);">10-Year Scrub:</span>
             <input type="range" id="trajectory-slider" class="year-slider" min="2016" max="2025" value="2025" step="1">
             <span id="slider-year-label" style="font-family:var(--font-mono); font-weight:700; color:#fff; min-width:40px;">2025</span>
           </div>
@@ -83,10 +111,10 @@
 
         <div class="canvas-legend-row">
           <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> AI Infrastructure & Model Safety</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Global Semiconductor Foundries</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div> Cloud Data Privacy & Zero Trust</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Cross-Border Export Controls</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#f43f5e;"></div> Workforce & Supply Chain Disruption</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Global Semiconductor Foundries & CoWoS</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#818cf8;"></div> Cloud Privacy, Sovereignty & Zero Trust</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Export Controls & Trade Sanctions</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f43f5e;"></div> Workforce & Supply Chain Fragility</div>
         </div>
       </div>
 
@@ -94,23 +122,23 @@
       <div class="stats-grid">
         <div class="mona-card stat-card">
           <div class="stat-num">500+</div>
-          <div class="stat-label">Document Versions</div>
+          <div class="stat-label">10-K Filings Processed</div>
         </div>
         <div class="mona-card stat-card">
-          <div class="stat-num">31</div>
-          <div class="stat-label">Corpus Entities</div>
+          <div class="stat-num">50+</div>
+          <div class="stat-label">Corpus Entities (11 Sectors)</div>
+        </div>
+        <div class="mona-card stat-card">
+          <div class="stat-num">10 Years</div>
+          <div class="stat-label">Temporal Horizon (2016–2025)</div>
         </div>
         <div class="mona-card stat-card">
           <div class="stat-num">$0.00</div>
           <div class="stat-label">Monthly Runtime Cost</div>
         </div>
-        <div class="mona-card stat-card">
-          <div class="stat-num">100%</div>
-          <div class="stat-label">Client-Side Wasm Analytics</div>
-        </div>
       </div>
 
-      <!-- Reimagined Document Forensics Processing Pipeline -->
+      <!-- Reimagined Architecture Pipeline -->
       <div class="pipeline-flow-container">
         <div style="margin-bottom: 1.5rem;">
           <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Forensic Architecture Pipeline</h2>
@@ -121,47 +149,66 @@
           <div class="pipeline-stage-card active" data-stage="0">
             <div class="stage-step-badge">STAGE 01</div>
             <div class="stage-title">SEC EDGAR Ingestion</div>
-            <div class="stage-desc">Rate-limited (8 req/s) retrieval with immutable Bronze checkpoints & .meta.json sidecars.</div>
+            <div class="stage-desc">Rate-limited (8 req/s) retrieval with immutable Bronze checkpoints across 10 years (2016-2025).</div>
           </div>
           <div class="pipeline-stage-card" data-stage="1">
             <div class="stage-step-badge">STAGE 02</div>
-            <div class="stage-title">Item 1A Extraction</div>
-            <div class="stage-desc">Regex boundary localization, TOC stripping, and dehyphenation into clean Silver paragraphs.</div>
+            <div class="stage-title">Format-Aware Parsing</div>
+            <div class="stage-desc">Handles both legacy plain HTML (2016-2018) and modern iXBRL tags with TOC avoidance.</div>
           </div>
           <div class="pipeline-stage-card" data-stage="2">
             <div class="stage-step-badge">STAGE 03</div>
             <div class="stage-title">Vector Embeddings</div>
-            <div class="stage-desc">Local <code>bge-small-en-v1.5</code> vector representations with L2 normalization and disk caching.</div>
+            <div class="stage-desc">Local <code>bge-small-en-v1.5</code> representations with L2 normalization and disk caching.</div>
           </div>
           <div class="pipeline-stage-card" data-stage="3">
             <div class="stage-step-badge">STAGE 04</div>
-            <div class="stage-title">UMAP + HDBSCAN</div>
-            <div class="stage-desc">Unsupervised theme discovery across all company-years simultaneously to isolate global topics.</div>
+            <div class="stage-title">UMAP + Outlier Discovery</div>
+            <div class="stage-desc">Global density clustering with sanitized prose filters to isolate genuine black-swan risks.</div>
           </div>
           <div class="pipeline-stage-card" data-stage="4">
             <div class="stage-step-badge">STAGE 05</div>
-            <div class="stage-title">Centroid Cosine Drift</div>
-            <div class="stage-desc">YoY vector divergence isolates true meaning evolution from raw word-count diffs.</div>
+            <div class="stage-title">Wasserstein Drift Tests</div>
+            <div class="stage-desc">Multi-modal distribution distance and vectorized permutation tests (p-values).</div>
           </div>
           <div class="pipeline-stage-card" data-stage="5">
             <div class="stage-step-badge">STAGE 06</div>
             <div class="stage-title">Evidence Grounding</div>
-            <div class="stage-desc">Batch LLM synthesis citing exact source chunks; cached directly into Gold Parquet tables.</div>
+            <div class="stage-desc">Local LLM synthesis citing exact source chunks; validated into Gold Parquet tables.</div>
           </div>
         </div>
 
         <div id="pipeline-detail-box" class="pipeline-detail-panel">
           <strong style="color:var(--neon-sky);">STAGE 01: SEC EDGAR Ingestion (2016–2025)</strong><br/>
-          <span style="color:#cbd5e1;">Strict rate limiting prevents SEC 429 blocks. Downloads raw primary HTML filings, stores immutable files in <code>data/bronze/</code>, and creates cryptographic metadata sidecars.</span>
+          <span style="color:#cbd5e1;">Enforces an 8 req/s monotonic rate limit to respect data.sec.gov rules. Pulls raw 10-K primary documents into immutable bronze folders with SHA-verified metadata sidecars across 10 fiscal years.</span>
         </div>
       </div>
     </div>
 
-    <!-- VIEW 2: WHAT CHANGED INTELLIGENCE FEED -->
+    <!-- VIEW 2: KNOWLEDGE GRAPH NETWORK ("NETWORK OF THINGS") -->
+    <div id="view-network" class="view-section">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Interactive Knowledge Graph Network</h2>
+        <p style="color:var(--text-secondary);">Explore the interconnected network of 50+ filers, thematic risk manifolds, and 10-year disclosure connections. Hover any node to trace relationships.</p>
+      </div>
+      <div class="mona-card interactive-showcase">
+        <canvas id="network-canvas"></canvas>
+        <div style="margin-top:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div class="canvas-legend-row" style="margin-top:0;">
+            <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;"></div> Corporate Entities (50+ Filers)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#a855f7;"></div> Thematic Risk Manifolds</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Emerging Black-Swan Outliers</div>
+          </div>
+          <span style="font-size:0.85rem; color:var(--text-secondary); font-family:var(--font-mono);">Hover or drag nodes to inspect semantic topology</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: WHAT CHANGED INTELLIGENCE FEED -->
     <div id="view-global" class="view-section">
       <div style="margin-bottom: 1.5rem;">
-        <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Top Disclosed Drift Events</h2>
-        <p style="color:var(--text-secondary);">Ranked by Materiality Score: <code>abs(Δ Intensity) × log(1 + chunk_count)</code>. Click any row for forensic before/after verification.</p>
+        <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">Top Disclosed Drift Events (2016–2025)</h2>
+        <p style="color:var(--text-secondary);">Ranked by Materiality Score with Wasserstein distribution divergence. Click any row for forensic before/after verification.</p>
       </div>
 
       <!-- Filter Controls Bar -->
@@ -169,10 +216,13 @@
         <input type="text" id="filter-search" class="filter-input" placeholder="Search company or theme..." style="flex:1; min-width:200px;">
         <select id="filter-sector" class="filter-select">
           <option value="All">All Sectors</option>
-          <option value="Technology">Technology</option>
+          <option value="Information Technology">Information Technology</option>
+          <option value="Communication Services">Communication Services</option>
           <option value="Healthcare">Healthcare</option>
+          <option value="Financials">Financials</option>
           <option value="Industrials">Industrials</option>
-          <option value="Consumer Discretionary">Consumer</option>
+          <option value="Consumer Discretionary">Consumer Discretionary</option>
+          <option value="Consumer Staples">Consumer Staples</option>
           <option value="Energy">Energy</option>
         </select>
         <select id="filter-type" class="filter-select">
@@ -182,12 +232,7 @@
           <option value="fading">📉 Fading</option>
           <option value="disappeared">🛑 Disappeared</option>
         </select>
-        <select id="filter-year" class="filter-select">
-          <option value="All">All Years</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-        </select>
+        <select id="filter-year" class="filter-select"></select>
       </div>
 
       <div class="table-container">
@@ -199,7 +244,8 @@
               <th>Year</th>
               <th>Classification</th>
               <th>Δ Intensity</th>
-              <th>Centroid Drift</th><th>Wasserstein (p-val)</th>
+              <th>Centroid Drift</th>
+              <th>Wasserstein (p-val)</th>
               <th>Materiality Score</th>
             </tr>
           </thead>
@@ -208,23 +254,23 @@
       </div>
     </div>
 
-    <!-- VIEW 3: COMPANY LONGITUDINAL TIMELINE -->
+    <!-- VIEW 4: COMPANY LONGITUDINAL TIMELINE -->
     <div id="view-timeline" class="view-section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
         <div>
-          <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;" id="timeline-company-name">Company Temporal Trajectory</h2>
-          <p style="color:var(--text-secondary);">Longitudinal evolution of thematic risk disclosure intensities.</p>
+          <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;" id="timeline-company-name">Company 10-Year Trajectory</h2>
+          <p style="color:var(--text-secondary);">Longitudinal evolution of thematic risk disclosures (2016–2025).</p>
         </div>
-        <select id="company-selector" class="filter-select" style="min-width:240px;"></select>
+        <select id="company-selector" class="filter-select" style="min-width:280px;"></select>
       </div>
       <div class="timeline-track" id="timeline-track"></div>
     </div>
 
-    <!-- VIEW 4: DUCKDB-WASM SQL SANDBOX -->
+    <!-- VIEW 5: DUCKDB-WASM SQL SANDBOX -->
     <div id="view-sql" class="view-section">
       <div style="margin-bottom: 1.5rem;">
         <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:800; color:#fff;">DuckDB-Wasm Interactive Sandbox</h2>
-        <p style="color:var(--text-secondary);">Execute real SQL queries directly on analytical Parquet files in your browser. Zero backend, zero server latency.</p>
+        <p style="color:var(--text-secondary);">Execute real SQL queries directly on 10-year analytical Parquet files in your browser. Zero backend, zero server latency.</p>
       </div>
 
       <div class="mona-card sql-sandbox">
@@ -237,16 +283,16 @@
         </div>
 
         <textarea id="sql-input" class="sql-textarea">SELECT 
-  t.label as theme_cluster,
+  t.label as theme,
   tc.fiscal_year,
-  COUNT(DISTINCT tc.cik) as affected_entities,
-  ROUND(AVG(tc.materiality_score), 4) as avg_materiality
+  COUNT(DISTINCT tc.cik) as entities_affected,
+  ROUND(AVG(tc.materiality_score), 4) as avg_materiality,
+  ROUND(AVG(tc.centroid_drift), 4) as avg_centroid_drift
 FROM theme_changes tc
 JOIN themes t ON tc.cluster_id = t.cluster_id
-WHERE tc.change_type = 'new'
 GROUP BY t.label, tc.fiscal_year
 ORDER BY avg_materiality DESC
-LIMIT 10;</textarea>
+LIMIT 12;</textarea>
 
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <button id="btn-run-sql" class="btn btn-primary">Run Query (DuckDB-Wasm)</button>
@@ -254,6 +300,74 @@ LIMIT 10;</textarea>
         </div>
 
         <div id="sql-results" style="margin-top: 1.5rem;"></div>
+      </div>
+    </div>
+
+    <!-- VIEW 6: ABOUT & METHODOLOGY GUIDE -->
+    <div id="view-about" class="view-section">
+      <div style="margin-bottom: 2rem;">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          <span>System Philosophy & Technical Architecture</span>
+        </div>
+        <h2 style="font-family:var(--font-display); font-size:2.4rem; font-weight:800; color:#fff;">About DriftLens</h2>
+        <p style="color:var(--text-secondary); max-width:860px; font-size:1.1rem; line-height:1.65;">
+          A general-purpose semantic drift detection engine designed to detect when the <em>meaning</em> of recurring sections in versioned document corpora changes over time. Demonstrated on 10 years of SEC 10-K filings across 50+ leading companies.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <div class="mona-card about-card">
+          <div class="about-icon">🔍</div>
+          <h3 style="color:#fff; font-size:1.2rem; margin-bottom:0.6rem;">What DriftLens Is</h3>
+          <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.6;">
+            A document intelligence system combining bi-encoder embeddings, unsupervised manifold clustering, Wasserstein distribution distance, and local LLM evidence grounding to identify substantive corporate disclosure changes.
+          </p>
+        </div>
+
+        <div class="mona-card about-card">
+          <div class="about-icon">🛡️</div>
+          <h3 style="color:#fff; font-size:1.2rem; margin-bottom:0.6rem;">What DriftLens Is NOT</h3>
+          <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.6;">
+            It is <strong>not a stock picker, trading bot, or generic RAG demo</strong>. SEC filings were chosen because they are legally standardized, versioned annually, and freely accessible — serving as the ideal testbed for semantic drift.
+          </p>
+        </div>
+
+        <div class="mona-card about-card">
+          <div class="about-icon">⚡</div>
+          <h3 style="color:#fff; font-size:1.2rem; margin-bottom:0.6rem;">Permanent $0/Month Architecture</h3>
+          <p style="color:var(--text-secondary); font-size:0.92rem; line-height:1.6;">
+            All machine learning and LLM inference runs <strong>offline once during batch ETL</strong>. The live web application executes entirely client-side via <strong>DuckDB-Wasm</strong> reading compressed static Parquet tables. Zero server bills forever.
+          </p>
+        </div>
+      </div>
+
+      <div class="mona-card" style="margin-top:2rem; padding:2rem;">
+        <h3 style="color:#fff; font-size:1.35rem; margin-bottom:1rem; font-family:var(--font-display);">Mathematical & Algorithmic Formulation</h3>
+        
+        <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:0.5rem;"><strong>1. Calibrated Materiality Score:</strong></p>
+        <div class="formula-callout">
+          Materiality = |Intensity[t] - Intensity[t-1]| × ln(1 + Paragraph_Count[t])
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">
+          Weights the magnitude of percentage shift by the depth of actual paragraph discussion, ensuring isolated 1-sentence tweaks do not outrank multi-page risk shifts.
+        </p>
+
+        <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:0.5rem;"><strong>2. Multi-Modal Wasserstein Distribution Distance:</strong></p>
+        <div class="formula-callout">
+          Energy_Distance(P, Q) = 2 · E[||X - Y||] - E[||X - X'||] - E[||Y - Y'||]
+        </div>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1.5rem;">
+          Measures the true geometric transport distance between year N and year N-1 disclosure embedding clouds, verified via a 60-iteration permutation significance test (p < 0.05).
+        </p>
+
+        <p style="color:var(--text-secondary); font-size:0.95rem; margin-bottom:0.5rem;"><strong>3. What You Can Do With This Engine:</strong></p>
+        <ul style="color:var(--text-secondary); font-size:0.92rem; line-height:1.8; margin-left:1.5rem;">
+          <li><strong>Audit Longitudinal Risk Trajectories:</strong> Track how a company's cyber or supply chain stance shifted across 10 years.</li>
+          <li><strong>Detect Novel Black Swans:</strong> Flag unprecedented outlier paragraphs before they become industry-wide clusters.</li>
+          <li><strong>Run In-Browser SQL Forensics:</strong> Execute ad-hoc analytical queries across all gold tables with DuckDB-Wasm.</li>
+          <li><strong>Verify Primary Evidence:</strong> Inspect side-by-side excerpt diffs grounding every synthesized claim in verbatim text.</li>
+        </ul>
       </div>
     </div>
 

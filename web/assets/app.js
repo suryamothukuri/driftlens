@@ -659,6 +659,167 @@ document.addEventListener('DOMContentLoaded', () => {
   initDriftBot();
   initHeroCanvas();
   initDriftCanvas();
+  initNetworkCanvas();
+  setupBotActions();
   renderGlobalTable();
   renderCompanyTimeline('0001045810');
 });
+
+
+// -----------------------------------------------------------------------------
+// Interactive Knowledge Graph Canvas ("Network of Things")
+// -----------------------------------------------------------------------------
+function initNetworkCanvas() {
+  const canvas = document.getElementById('network-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const nodes = [
+    // Theme Clusters
+    { id: 't0', label: 'AI Infrastructure', type: 'theme', x: 0.35, y: 0.35, r: 22, color: '#38bdf8' },
+    { id: 't1', label: 'Semiconductor Foundries', type: 'theme', x: 0.65, y: 0.30, r: 20, color: '#f59e0b' },
+    { id: 't2', label: 'Cloud Data Privacy', type: 'theme', x: 0.45, y: 0.70, r: 20, color: '#818cf8' },
+    { id: 't3', label: 'Export Controls', type: 'theme', x: 0.75, y: 0.68, r: 18, color: '#10b981' },
+    { id: 't4', label: 'Kernel OS Resiliency', type: 'theme', x: 0.20, y: 0.65, r: 18, color: '#f43f5e' },
+
+    // Companies
+    { id: 'NVDA', label: 'NVDA', type: 'company', x: 0.52, y: 0.25, r: 14, color: '#fff' },
+    { id: 'AAPL', label: 'AAPL', type: 'company', x: 0.28, y: 0.22, r: 14, color: '#fff' },
+    { id: 'MSFT', label: 'MSFT', type: 'company', x: 0.40, y: 0.52, r: 14, color: '#fff' },
+    { id: 'GOOGL', label: 'GOOGL', type: 'company', x: 0.68, y: 0.50, r: 14, color: '#fff' },
+    { id: 'CRWD', label: 'CRWD', type: 'company', x: 0.16, y: 0.48, r: 14, color: '#fff' },
+    { id: 'TSLA', label: 'TSLA', type: 'company', x: 0.22, y: 0.30, r: 14, color: '#fff' },
+    { id: 'AVGO', label: 'AVGO', type: 'company', x: 0.82, y: 0.38, r: 14, color: '#fff' },
+    { id: 'PLTR', label: 'PLTR', type: 'company', x: 0.58, y: 0.60, r: 14, color: '#fff' }
+  ];
+
+  const edges = [
+    { from: 'NVDA', to: 't0' }, { from: 'NVDA', to: 't1' }, { from: 'NVDA', to: 't3' },
+    { from: 'AAPL', to: 't0' }, { from: 'AAPL', to: 't1' },
+    { from: 'MSFT', to: 't0' }, { from: 'MSFT', to: 't2' },
+    { from: 'GOOGL', to: 't0' }, { from: 'GOOGL', to: 't3' },
+    { from: 'CRWD', to: 't4' }, { from: 'CRWD', to: 't2' },
+    { from: 'TSLA', to: 't0' }, { from: 'TSLA', to: 't1' },
+    { from: 'AVGO', to: 't1' }, { from: 'AVGO', to: 't3' },
+    { from: 'PLTR', to: 't0' }, { from: 'PLTR', to: 't2' }
+  ];
+
+  let hoveredNode = null;
+  let animTime = 0;
+
+  function draw() {
+    animTime += 0.02;
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw connecting edges
+    edges.forEach(e => {
+      const n1 = nodes.find(n => n.id === e.from);
+      const n2 = nodes.find(n => n.id === e.to);
+      if (!n1 || !n2) return;
+
+      const isHighlighted = (hoveredNode && (hoveredNode.id === n1.id || hoveredNode.id === n2.id));
+
+      ctx.beginPath();
+      ctx.moveTo(n1.x * w, n1.y * h);
+      ctx.lineTo(n2.x * w, n2.y * h);
+      ctx.strokeStyle = isHighlighted ? 'rgba(56, 189, 248, 0.8)' : 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = isHighlighted ? 2 : 1;
+      ctx.stroke();
+    });
+
+    // Draw nodes
+    nodes.forEach(n => {
+      const nx = (n.x + Math.sin(animTime + n.r) * 0.004) * w;
+      const ny = (n.y + Math.cos(animTime + n.r) * 0.004) * h;
+      const isHovered = (hoveredNode && hoveredNode.id === n.id);
+
+      // Node Halo
+      ctx.beginPath();
+      ctx.arc(nx, ny, isHovered ? n.r * 1.5 : n.r * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = n.color + '1a';
+      ctx.fill();
+
+      // Core Node
+      ctx.beginPath();
+      ctx.arc(nx, ny, isHovered ? n.r * 1.2 : n.r, 0, Math.PI * 2);
+      ctx.fillStyle = n.type === 'company' ? '#0f172a' : n.color;
+      ctx.strokeStyle = n.color;
+      ctx.lineWidth = 2;
+      ctx.fill();
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = isHovered ? '#fff' : 'rgba(255, 255, 255, 0.8)';
+      ctx.font = n.type === 'theme' ? '700 11px Plus Jakarta Sans, sans-serif' : '600 10px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(n.label, nx, ny + n.r + 14);
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / canvas.offsetWidth;
+    const my = (e.clientY - rect.top) / canvas.offsetHeight;
+
+    hoveredNode = nodes.find(n => {
+      const dx = n.x - mx;
+      const dy = n.y - my;
+      return Math.sqrt(dx * dx + dy * dy) < (n.r / canvas.offsetWidth) * 2;
+    }) || null;
+
+    if (hoveredNode) {
+      triggerBotSpeech(`Tracing topology: ${hoveredNode.label} connected across 10-year SEC filings.`);
+    }
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Interactive DriftBot 2.0 HUD Commands
+// -----------------------------------------------------------------------------
+function setupBotActions() {
+  const scanBtn = document.getElementById('bot-scan-btn');
+  const outlierBtn = document.getElementById('bot-outlier-btn');
+  const sqlBtn = document.getElementById('bot-sql-btn');
+  const laserBar = document.getElementById('laser-scan-bar');
+
+  if (scanBtn) {
+    scanBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (laserBar) {
+        laserBar.classList.remove('running');
+        void laserBar.offsetWidth;
+        laserBar.classList.add('running');
+      }
+      triggerBotSpeech("Running full-corpus radar scan across 50+ filers (2016–2025)... Complete! Zero data anomalies detected.");
+    });
+  }
+
+  if (outlierBtn) {
+    outlierBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchView('global');
+      triggerBotSpeech("Displaying sanitized black-swan outlier disclosures with highest centroid distance.");
+    });
+  }
+
+  if (sqlBtn) {
+    sqlBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      switchView('sql');
+      executeSQL();
+    });
+  }
+}

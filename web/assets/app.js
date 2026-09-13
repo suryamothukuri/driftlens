@@ -489,28 +489,257 @@ function closeModal() {
 // -----------------------------------------------------------------------------
 // Company Longitudinal Timeline (2016-2025)
 // -----------------------------------------------------------------------------
+const COMPANY_SPECIFIC_TIMELINES = {
+  '0001045810': { // NVDA
+    2016: [{ label: 'PC Gaming GPU Cycle', type: 'stable', delta: '+1.2%', score: 0.08, drift: 0.12 }, { label: 'Crypto Mining Volatility', type: 'new', delta: '+4.5%', score: 0.15, drift: 0.35 }],
+    2017: [{ label: 'Crypto Demand Surge', type: 'intensifying', delta: '+8.1%', score: 0.22, drift: 0.42 }, { label: 'Automotive Tegra Platform', type: 'stable', delta: '+0.5%', score: 0.06, drift: 0.10 }],
+    2018: [{ label: 'Turing Ray-Tracing GPU Architecture', type: 'new', delta: '+6.8%', score: 0.19, drift: 0.38 }, { label: 'Crypto Inventory Post-Crash Glut', type: 'fading', delta: '-9.2%', score: 0.24, drift: 0.51 }],
+    2019: [{ label: 'Enterprise Datacenter Tensor Cores', type: 'intensifying', delta: '+7.4%', score: 0.21, drift: 0.40 }, { label: 'Mellanox Acquisition Integration', type: 'new', delta: '+5.2%', score: 0.16, drift: 0.32 }],
+    2020: [{ label: 'Mellanox Interconnect Synergies', type: 'stable', delta: '+2.1%', score: 0.09, drift: 0.18 }, { label: 'Arm Acquisition Regulatory Inquiries', type: 'new', delta: '+8.6%', score: 0.25, drift: 0.62 }],
+    2021: [{ label: 'Global Foundry Wafer Allocations', type: 'intensifying', delta: '+10.4%', score: 0.29, drift: 0.58 }, { label: 'Arm Acquisition Termination Risk', type: 'intensifying', delta: '+6.1%', score: 0.18, drift: 0.45 }],
+    2022: [{ label: 'US Cross-Border China Export Restrictions', type: 'new', delta: '+11.8%', score: 0.32, drift: 0.71 }, { label: 'Arm Merger Abandonment Fees', type: 'disappeared', delta: '-8.5%', score: 0.22, drift: 0.65 }],
+    2023: [{ label: 'Generative AI & Hyperscale DGX Demand', type: 'new', delta: '+13.5%', score: 0.36, drift: 0.78 }, { label: 'China Modified A800/H800 Compliance', type: 'intensifying', delta: '+9.2%', score: 0.27, drift: 0.64 }],
+    2024: [{ label: 'CoWoS Packaging & Wafer Substrate Constraints', type: 'intensifying', delta: '+12.8%', score: 0.35, drift: 0.81 }, { label: 'Blackwell Architectural Complexity', type: 'new', delta: '+10.2%', score: 0.30, drift: 0.74 }],
+    2025: [{ label: 'Advanced Packaging & Foundry Constraints', type: 'intensifying', delta: '+14.2%', score: 0.384, drift: 0.842 }, { label: 'Rack-Scale Liquid Cooling & Power Density', type: 'new', delta: '+11.5%', score: 0.33, drift: 0.79 }]
+  },
+  '0000320193': { // AAPL
+    2016: [{ label: 'iPhone Product Cycle Seasonality', type: 'stable', delta: '+0.8%', score: 0.05, drift: 0.11 }, { label: 'App Store Commission Legal Challenges', type: 'stable', delta: '+1.1%', score: 0.07, drift: 0.14 }],
+    2017: [{ label: 'OLED Display Sourcing Concentration', type: 'new', delta: '+5.4%', score: 0.16, drift: 0.34 }, { label: 'Services Growth & Subscription Margin', type: 'intensifying', delta: '+4.2%', score: 0.14, drift: 0.28 }],
+    2018: [{ label: 'US-China Tariffs on Consumer Hardware', type: 'new', delta: '+7.8%', score: 0.22, drift: 0.46 }, { label: 'Wearables & Watch Sensor Compliance', type: 'stable', delta: '+1.5%', score: 0.08, drift: 0.15 }],
+    2019: [{ label: 'Greater China Assembly Concentration', type: 'intensifying', delta: '+6.2%', score: 0.19, drift: 0.40 }, { label: 'EU Digital Markets Inquiries', type: 'new', delta: '+5.9%', score: 0.18, drift: 0.39 }],
+    2020: [{ label: 'Apple Silicon M-Series Migration', type: 'new', delta: '+8.4%', score: 0.24, drift: 0.52 }, { label: 'Retail Store Pandemic Closures', type: 'intensifying', delta: '+9.1%', score: 0.26, drift: 0.48 }],
+    2021: [{ label: 'IDFA App Tracking Transparency Privacy', type: 'new', delta: '+7.2%', score: 0.21, drift: 0.45 }, { label: 'Semiconductor Component Lead Times', type: 'intensifying', delta: '+8.0%', score: 0.23, drift: 0.49 }],
+    2022: [{ label: 'Zhengzhou Assembly Facility Disruptions', type: 'intensifying', delta: '+11.4%', score: 0.31, drift: 0.68 }, { label: 'India & Vietnam Manufacturing Shift', type: 'new', delta: '+6.5%', score: 0.19, drift: 0.41 }],
+    2023: [{ label: 'EU DMA Sideloading & Third-Party App Stores', type: 'intensifying', delta: '+9.8%', score: 0.28, drift: 0.63 }, { label: 'Vision Pro Spatial Computing Ramp', type: 'new', delta: '+7.1%', score: 0.20, drift: 0.44 }],
+    2024: [{ label: 'Autonomous AI Guardrails & Silicon Compute', type: 'new', delta: '+11.8%', score: 0.312, drift: 0.792 }, { label: 'DOJ Smartphone Ecosystem Antitrust Suit', type: 'intensifying', delta: '+10.5%', score: 0.29, drift: 0.67 }],
+    2025: [{ label: 'Private Cloud Compute & On-Device Neural Safety', type: 'intensifying', delta: '+12.1%', score: 0.34, drift: 0.81 }, { label: 'Geopolitical Supply Chain Re-Routing Costs', type: 'stable', delta: '+2.4%', score: 0.11, drift: 0.25 }]
+  },
+  '0001535527': { // CRWD
+    2019: [{ label: 'Falcon Cloud-Native Single Agent Adoption', type: 'new', delta: '+6.2%', score: 0.18, drift: 0.28 }, { label: 'Endpoint Telemetry Storage Scaling', type: 'stable', delta: '+1.4%', score: 0.06, drift: 0.12 }],
+    2020: [{ label: 'Work-from-Home Distributed Endpoint Threats', type: 'intensifying', delta: '+9.4%', score: 0.27, drift: 0.51 }, { label: 'Public Cloud Infrastructure Hosting Costs', type: 'stable', delta: '+2.1%', score: 0.08, drift: 0.16 }],
+    2021: [{ label: 'SolarWinds / Log4j Cascading Cyber Disclosures', type: 'new', delta: '+8.1%', score: 0.23, drift: 0.49 }, { label: 'Identity Threat Protection Expansion', type: 'new', delta: '+5.7%', score: 0.17, drift: 0.35 }],
+    2022: [{ label: 'State-Sponsored Threat Actor Campaigns', type: 'intensifying', delta: '+7.5%', score: 0.22, drift: 0.44 }, { label: 'Falcon Complete Managed Response SLAs', type: 'stable', delta: '+1.9%', score: 0.07, drift: 0.14 }],
+    2023: [{ label: 'Generative AI Threat Surface & LLM Security', type: 'new', delta: '+8.9%', score: 0.26, drift: 0.55 }, { label: 'Next-Gen SIEM Log Ingestion Contention', type: 'stable', delta: '+3.2%', score: 0.11, drift: 0.21 }],
+    2024: [{ label: 'Kernel-Level System Resiliency & Update Verification', type: 'new', delta: '+16.5%', score: 0.442, drift: 0.880 }, { label: 'Third-Party Customer Litigation & Outage Liability', type: 'new', delta: '+14.2%', score: 0.38, drift: 0.82 }],
+    2025: [{ label: 'Channel File Sensor Staged Deployment Architecture', type: 'intensifying', delta: '+13.1%', score: 0.36, drift: 0.79 }, { label: 'Enterprise Insurance SLA & Re-Certification', type: 'intensifying', delta: '+9.4%', score: 0.27, drift: 0.61 }]
+  },
+  '0001652044': { // GOOGL
+    2016: [{ label: 'Search Advertising Ad-Tech Density', type: 'stable', delta: '+0.6%', score: 0.05, drift: 0.10 }, { label: 'Mobile Android OEM Distribution Agreements', type: 'stable', delta: '+1.2%', score: 0.07, drift: 0.13 }],
+    2017: [{ label: 'European Commission Shopping Antitrust Fine', type: 'new', delta: '+7.1%', score: 0.21, drift: 0.45 }, { label: 'Google Cloud Platform Scale-Up', type: 'stable', delta: '+2.3%', score: 0.09, drift: 0.18 }],
+    2018: [{ label: 'GDPR Data Processing & Consent Frameworks', type: 'new', delta: '+8.5%', score: 0.25, drift: 0.52 }, { label: 'YouTube Brand Safety & Content Moderation', type: 'intensifying', delta: '+6.4%', score: 0.19, drift: 0.39 }],
+    2019: [{ label: 'Third-Party Cookie Phase-Out (Privacy Sandbox)', type: 'new', delta: '+7.8%', score: 0.23, drift: 0.47 }, { label: 'DOJ & State AG Search Market Inquiries', type: 'new', delta: '+6.9%', score: 0.20, drift: 0.44 }],
+    2020: [{ label: 'DOJ Search Monopoly Antitrust Litigation', type: 'new', delta: '+11.2%', score: 0.31, drift: 0.69 }, { label: 'Cloud Enterprise Remote Infrastructure Surge', type: 'intensifying', delta: '+5.4%', score: 0.16, drift: 0.31 }],
+    2021: [{ label: 'Digital Ad Market Privacy Changes (IDFA)', type: 'intensifying', delta: '+8.2%', score: 0.24, drift: 0.50 }, { label: 'DeepMind AI Research Safety & Governance', type: 'new', delta: '+5.1%', score: 0.15, drift: 0.32 }],
+    2022: [{ label: 'Generative Search Disruption & AI Unit Costs', type: 'new', delta: '+9.8%', score: 0.28, drift: 0.62 }, { label: 'DOJ Ad-Tech Monopolization Lawsuit', type: 'intensifying', delta: '+8.7%', score: 0.25, drift: 0.57 }],
+    2023: [{ label: 'Cross-Border Semiconductor Export Restrictions', type: 'new', delta: '+8.4%', score: 0.228, drift: 0.710 }, { label: 'Gemini Foundation Model Hallucination Liability', type: 'new', delta: '+9.2%', score: 0.27, drift: 0.66 }],
+    2024: [{ label: 'Federal Antitrust Search Liability Ruling Remedies', type: 'intensifying', delta: '+14.6%', score: 0.39, drift: 0.85 }, { label: 'Custom TPU Foundry Silicon Capacity', type: 'intensifying', delta: '+9.5%', score: 0.28, drift: 0.64 }],
+    2025: [{ label: 'Ad-Tech Structural Separation & Chrome Divestiture', type: 'intensifying', delta: '+15.2%', score: 0.41, drift: 0.87 }, { label: 'AI Agent Autonomous Web Transaction Risk', type: 'new', delta: '+11.0%', score: 0.32, drift: 0.73 }]
+  },
+  '0000012927': { // BA
+    2016: [{ label: 'Commercial Airplane Delivery Backlog', type: 'stable', delta: '+0.5%', score: 0.04, drift: 0.09 }, { label: 'Defense Space & Security Fixed-Price Contracts', type: 'stable', delta: '+1.2%', score: 0.07, drift: 0.12 }],
+    2017: [{ label: '737 MAX 8 Initial Airline Deliveries', type: 'new', delta: '+4.2%', score: 0.13, drift: 0.25 }, { label: 'Raw Material Aluminum & Titanium Tariffs', type: 'stable', delta: '+2.1%', score: 0.08, drift: 0.16 }],
+    2018: [{ label: 'Supply Chain Engine Delivery Bottlenecks', type: 'intensifying', delta: '+6.1%', score: 0.18, drift: 0.36 }, { label: 'Lion Air Flight 610 Investigation Disclosures', type: 'new', delta: '+8.4%', score: 0.25, drift: 0.58 }],
+    2019: [{ label: '737 MAX Global Fleet Grounding & MCAS Redesign', type: 'new', delta: '+17.2%', score: 0.46, drift: 0.89 }, { label: 'Production Line Pause & Liquidity Burn', type: 'new', delta: '+13.5%', score: 0.37, drift: 0.76 }],
+    2020: [{ label: 'Global Air Travel Collapse (COVID-19)', type: 'intensifying', delta: '+14.8%', score: 0.40, drift: 0.79 }, { label: '737 MAX FAA Re-Certification Mandates', type: 'intensifying', delta: '+11.2%', score: 0.32, drift: 0.68 }],
+    2021: [{ label: '787 Dreamliner Fuselage Gap Inspection Halts', type: 'new', delta: '+10.5%', score: 0.30, drift: 0.65 }, { label: 'Airline Customer Delivery Deferrals', type: 'fading', delta: '-6.2%', score: 0.18, drift: 0.42 }],
+    2022: [{ label: '787 Delivery Resumption & FAA Signoffs', type: 'fading', delta: '-5.1%', score: 0.15, drift: 0.35 }, { label: 'Defense Fixed-Price Development Losses', type: 'intensifying', delta: '+7.8%', score: 0.23, drift: 0.49 }],
+    2023: [{ label: 'Spirit AeroSystems Fuselage Bracket Quality Issues', type: 'new', delta: '+8.9%', score: 0.26, drift: 0.58 }, { label: 'Titanium Documentation Compliance (Forged Records)', type: 'new', delta: '+6.7%', score: 0.20, drift: 0.46 }],
+    2024: [{ label: 'Fuselage Subassembly Quality Control Mandates', type: 'intensifying', delta: '+12.4%', score: 0.320, drift: 0.760 }, { label: 'FAA 737 MAX Production Cap Limits (38/mo)', type: 'new', delta: '+13.8%', score: 0.37, drift: 0.81 }],
+    2025: [{ label: 'Spirit AeroSystems Re-Acquisition Integration', type: 'new', delta: '+11.6%', score: 0.33, drift: 0.72 }, { label: 'IAM Machinist Union Strike Production Recovery', type: 'intensifying', delta: '+10.4%', score: 0.30, drift: 0.67 }]
+  }
+};
+
+function generateSectorTimelineThemes(sector, year) {
+  const y = parseInt(year);
+  switch (sector) {
+    case 'Information Technology':
+      if (y <= 2018) return [
+        { label: 'Cloud Infrastructure Migration', type: 'intensifying', delta: '+5.4%', score: 0.16, drift: 0.32 },
+        { label: 'Enterprise Software Subscription Shift', type: 'stable', delta: '+1.2%', score: 0.06, drift: 0.14 }
+      ];
+      if (y <= 2021) return [
+        { label: 'Remote Workforce Endpoint Security', type: 'intensifying', delta: '+8.2%', score: 0.24, drift: 0.49 },
+        { label: 'Semiconductor Component Lead Times', type: 'intensifying', delta: '+7.6%', score: 0.22, drift: 0.44 }
+      ];
+      if (y <= 2023) return [
+        { label: 'Sovereign Cloud & Zero-Trust Architecture', type: 'new', delta: '+9.1%', score: 0.26, drift: 0.58 },
+        { label: 'Cross-Border Semiconductor Export Restrictions', type: 'new', delta: '+8.4%', score: 0.24, drift: 0.56 }
+      ];
+      return [
+        { label: 'Frontier AI Model Safety & Guardrails', type: 'new', delta: '+12.4%', score: 0.34, drift: 0.78 },
+        { label: 'Advanced Packaging & Substrate Bottlenecks', type: 'intensifying', delta: '+10.8%', score: 0.31, drift: 0.72 }
+      ];
+
+    case 'Healthcare':
+      if (y <= 2018) return [
+        { label: 'Patent Expiration & Generic Biologics Erosion', type: 'stable', delta: '+1.5%', score: 0.08, drift: 0.18 },
+        { label: 'FDA Phase III Clinical Trial Milestones', type: 'stable', delta: '+0.8%', score: 0.05, drift: 0.12 }
+      ];
+      if (y <= 2021) return [
+        { label: 'Emergency Use Vaccine & Therapeutic R&D', type: 'new', delta: '+11.5%', score: 0.32, drift: 0.64 },
+        { label: 'Elective Procedure Deferral Revenue Headwinds', type: 'intensifying', delta: '+8.8%', score: 0.25, drift: 0.51 }
+      ];
+      if (y <= 2023) return [
+        { label: 'Inflation Reduction Act Drug Price Negotiation', type: 'new', delta: '+9.6%', score: 0.27, drift: 0.60 },
+        { label: 'Incretin Peptide Biologics API Sourcing', type: 'new', delta: '+9.1%', score: 0.235, drift: 0.670 }
+      ];
+      return [
+        { label: 'Global Sterile Injectable Syringe Capacity', type: 'intensifying', delta: '+11.2%', score: 0.32, drift: 0.74 },
+        { label: 'AI-Powered Molecular Screening & Bio-Security', type: 'new', delta: '+8.9%', score: 0.26, drift: 0.61 }
+      ];
+
+    case 'Financials':
+      if (y <= 2018) return [
+        { label: 'Dodd-Frank & Comprehensive Capital Analysis (CCAR)', type: 'stable', delta: '+0.9%', score: 0.06, drift: 0.14 },
+        { label: 'Low Interest Rate Net Interest Margin Compression', type: 'intensifying', delta: '+4.8%', score: 0.15, drift: 0.28 }
+      ];
+      if (y <= 2021) return [
+        { label: 'CECL Current Expected Credit Loss Modeling', type: 'new', delta: '+8.9%', score: 0.26, drift: 0.54 },
+        { label: 'Paycheck Protection Program Loan Processing SLAs', type: 'new', delta: '+7.4%', score: 0.22, drift: 0.46 }
+      ];
+      if (y <= 2023) return [
+        { label: 'Rapid Fed Rate Hikes & HTM Securities Unrealized Losses', type: 'new', delta: '+12.6%', score: 0.36, drift: 0.77 },
+        { label: 'Commercial Real Estate Office Refinancing Exposure', type: 'intensifying', delta: '+10.2%', score: 0.30, drift: 0.68 }
+      ];
+      return [
+        { label: 'Basel III Endgame Capital Requirement Buffers', type: 'intensifying', delta: '+9.8%', score: 0.28, drift: 0.64 },
+        { label: 'Real-Time Payment Settlement & GenAI Fraud Vector Risk', type: 'new', delta: '+8.7%', score: 0.25, drift: 0.59 }
+      ];
+
+    case 'Energy':
+      if (y <= 2018) return [
+        { label: 'Crude Oil & Henry Hub Natural Gas Volatility', type: 'stable', delta: '+1.4%', score: 0.07, drift: 0.16 },
+        { label: 'Hydraulic Fracturing Permitting Regulations', type: 'stable', delta: '+1.1%', score: 0.06, drift: 0.13 }
+      ];
+      if (y <= 2021) return [
+        { label: 'Negative WTI Futures & Storage Capacity Limits', type: 'new', delta: '+13.2%', score: 0.37, drift: 0.78 },
+        { label: 'ESG Scope 1-3 Greenhouse Gas Disclosure Scrutiny', type: 'intensifying', delta: '+7.9%', score: 0.23, drift: 0.50 }
+      ];
+      if (y <= 2023) return [
+        { label: 'Scope 1-3 Methane Abatement & Permitting', type: 'new', delta: '+8.7%', score: 0.210, drift: 0.690 },
+        { label: 'European LNG Export Infrastructure Contracting', type: 'intensifying', delta: '+7.5%', score: 0.22, drift: 0.49 }
+      ];
+      return [
+        { label: 'Carbon Capture & Sequestration (CCS) Liability', type: 'new', delta: '+9.4%', score: 0.27, drift: 0.63 },
+        { label: 'Hyperscale Data Center Behind-the-Meter Power Contracts', type: 'new', delta: '+10.6%', score: 0.30, drift: 0.70 }
+      ];
+
+    case 'Consumer Discretionary':
+    case 'Consumer Staples':
+      if (y <= 2018) return [
+        { label: 'Omnichannel Fulfillment & Direct-to-Consumer Transition', type: 'intensifying', delta: '+4.6%', score: 0.14, drift: 0.29 },
+        { label: 'Minimum Wage Upward Adjustments', type: 'stable', delta: '+1.2%', score: 0.06, drift: 0.15 }
+      ];
+      if (y <= 2021) return [
+        { label: 'Container Shipping Freight Rates & Port Congestion', type: 'new', delta: '+11.4%', score: 0.32, drift: 0.66 },
+        { label: 'Essential Retail Sanitation & Absenteeism Costs', type: 'intensifying', delta: '+8.6%', score: 0.25, drift: 0.52 }
+      ];
+      if (y <= 2023) return [
+        { label: 'Input Cost Inflation & Grocery Shrinkage/Theft', type: 'intensifying', delta: '+9.2%', score: 0.27, drift: 0.59 },
+        { label: 'Consumer Trade-Down to Private Label Brands', type: 'new', delta: '+7.8%', score: 0.23, drift: 0.48 }
+      ];
+      return [
+        { label: 'Autonomous Fleet & Robotaxi AI Liability', type: 'new', delta: '+10.6%', score: 0.276, drift: 0.730 },
+        { label: 'Global Retail Tariff Re-Imposition & Sourcing Shifts', type: 'intensifying', delta: '+8.5%', score: 0.25, drift: 0.58 }
+      ];
+
+    default: // Industrials, Materials, Utilities, Real Estate
+      if (y <= 2018) return [
+        { label: 'Commercial Order Book Lead Times', type: 'stable', delta: '+1.1%', score: 0.06, drift: 0.15 },
+        { label: 'Steel & Aluminum Section 232 Tariffs', type: 'intensifying', delta: '+5.2%', score: 0.16, drift: 0.33 }
+      ];
+      if (y <= 2021) return [
+        { label: 'Tier-2 Supplier Component Chokepoints', type: 'intensifying', delta: '+9.8%', score: 0.28, drift: 0.58 },
+        { label: 'Critical Mineral & Rare Earth Export Licenses', type: 'new', delta: '+7.4%', score: 0.22, drift: 0.46 }
+      ];
+      if (y <= 2023) return [
+        { label: 'PFAS Chemical Regulatory Compliance & Water Standards', type: 'new', delta: '+8.9%', score: 0.26, drift: 0.59 },
+        { label: 'Electrical Grid Interconnection Queue Delays', type: 'intensifying', delta: '+8.2%', score: 0.24, drift: 0.53 }
+      ];
+      return [
+        { label: 'AI Data Center High-Voltage Transmission Bottlenecks', type: 'new', delta: '+11.5%', score: 0.33, drift: 0.75 },
+        { label: 'Fuselage & Structural Subassembly Quality Audits', type: 'intensifying', delta: '+10.4%', score: 0.30, drift: 0.69 }
+      ];
+  }
+}
+
 function renderCompanyTimeline(cik) {
   const comp = SAMPLE_DATA.companies.find(c => c.cik === cik) || SAMPLE_DATA.companies[0];
   const nameEl = document.getElementById('timeline-company-name');
-  if (nameEl) nameEl.textContent = `${comp.name} (${comp.ticker}) — 10-Year Longitudinal Trajectory (2016–2025)`;
+  if (nameEl) {
+    nameEl.innerHTML = `${comp.name} <code style="color:var(--neon-sky); font-size:1.4rem;">(${comp.ticker})</code> — 10-Year Longitudinal Trajectory (2016–2025)`;
+  }
 
   const track = document.getElementById('timeline-track');
   if (!track) return;
   track.innerHTML = '';
 
+  const specificData = COMPANY_SPECIFIC_TIMELINES[comp.cik];
+
   SAMPLE_DATA.years.forEach(yr => {
+    let themesForYear = [];
+    if (specificData && specificData[yr]) {
+      themesForYear = specificData[yr];
+    } else {
+      themesForYear = generateSectorTimelineThemes(comp.sector, yr);
+    }
+
     const card = document.createElement('div');
     card.className = 'mona-card timeline-node';
+    
+    let chipsHtml = '';
+    themesForYear.forEach(th => {
+      chipsHtml += `
+        <div class="timeline-theme-item" style="background:rgba(15,23,42,0.6); padding:0.65rem 0.85rem; border-radius:10px; border:1px solid rgba(255,255,255,0.06); cursor:pointer;" data-theme="${th.label}" data-year="${yr}">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+            <span class="pill pill-${th.type}" style="font-size:0.68rem; padding:0.15rem 0.5rem;">${th.type}</span>
+            <span style="font-family:var(--font-mono); font-size:0.75rem; color:${th.delta.startsWith('+') ? '#34d399' : '#f87171'}; font-weight:700;">${th.delta}</span>
+          </div>
+          <div style="font-size:0.84rem; font-weight:700; color:#f9fafb; margin-bottom:0.25rem;">${th.label}</div>
+          <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; font-family:var(--font-mono);">
+            <span>Score: ${th.score.toFixed(3)}</span>
+            <span>Drift: ${th.drift.toFixed(3)}</span>
+          </div>
+        </div>
+      `;
+    });
+
     card.innerHTML = `
-      <div class="timeline-year">FY${yr}</div>
-      <div style="display:flex; flex-direction:column; gap:0.65rem;">
-        <span class="pill ${yr >= 2023 ? 'pill-new' : 'pill-stable'}">${yr >= 2023 ? 'AI Guardrails (New)' : 'Core Operations'}</span>
-        <span class="pill ${yr === 2022 ? 'pill-intensifying' : 'pill-stable'}">${yr === 2022 ? 'Foundry Capacity (+8.4%)' : 'Hardware Supply'}</span>
-        <span class="pill pill-stable">Data Sovereignty</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem;">
+        <div class="timeline-year" style="margin-bottom:0;">FY${yr}</div>
+        <span style="font-size:0.72rem; color:var(--text-secondary); font-family:var(--font-mono);">Item 1A 10-K</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:0.6rem;">
+        ${chipsHtml}
       </div>
     `;
+
+    // Click on card theme to inspect
+    card.querySelectorAll('.timeline-theme-item').forEach(itemEl => {
+      itemEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const thName = itemEl.getAttribute('data-theme');
+        const thYear = parseInt(itemEl.getAttribute('data-year'));
+        openForensicModal({
+          cik: comp.cik,
+          ticker: comp.ticker,
+          company: comp.name,
+          sector: comp.sector,
+          label: thName,
+          year: thYear,
+          drift: 0.78,
+          wasserstein: 0.54,
+          pval: 0.005,
+          score: 0.32,
+          type: 'intensifying'
+        });
+      });
+    });
+
     track.appendChild(card);
   });
+
+  triggerBotSpeech(`Loaded 10-year longitudinal risk trajectory for ${comp.name} (${comp.ticker}) across 2016–2025.`);
 }
 
 // -----------------------------------------------------------------------------

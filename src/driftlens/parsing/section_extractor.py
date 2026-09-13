@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from bs4 import BeautifulSoup
 
-from driftlens.parsing.text_cleaning import clean_text, normalize_whitespace, token_count
+from driftlens.parsing.text_cleaning import normalize_whitespace
 
 logger = logging.getLogger("driftlens.parsing.section_extractor")
 

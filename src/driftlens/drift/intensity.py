@@ -16,6 +16,7 @@ one that writes 2 000 words in a 20 000-word filing.
 from __future__ import annotations
 
 import logging
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd

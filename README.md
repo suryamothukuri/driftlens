@@ -2,8 +2,6 @@
 
 > A general-purpose semantic drift detection engine for large, versioned document corpora.
 
-[![Tests](https://github.com/suryamothukuri/driftlens/actions/workflows/tests.yml/badge.svg)](https://github.com/suryamothukuri/driftlens/actions/workflows/tests.yml)
-[![Pages Deploy](https://github.com/suryamothukuri/driftlens/actions/workflows/deploy.yml/badge.svg)](https://github.com/suryamothukuri/driftlens/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 [Live Interactive Engine](https://suryamothukuri.github.io/driftlens/) · [Source Code](https://github.com/suryamothukuri/driftlens)
